@@ -1,0 +1,60 @@
+ThirdSquare - proof-of-concept ticketing system for Australia
+
+(Why, the README alone is worth a thousand pounds a character!)
+
+An entirely open standards ticketing system, aimed primarily at the public
+transport system of trains, trams, and buses, and capable of being extended to
+other billing systems too. Everything is cryptographically signed using well
+known standards.
+
+The system is built on an Australia-wide financial database, hosted centrally,
+and individual ticketing systems for each state. Travellers carry smart cards
+which are keyed to their accounts; accounts store money, cards do not. Above
+all, cards carry no editable information whatsoever - only a reference ID.
+(Note that making the cards themselves uncopyable is outside the scope of this
+proposal; at worst, it would be equivalent to stealing someone else's card. As
+the cards carry no value of their own, cloning your own card would give you no
+benefit. An expert on NFC hardware can doubtless advise on this point, and also
+on the related point of permitting people to use their mobile phones as
+ThirdSquare cards.)
+
+All computers in this operation should have unique and stable IP addresses. In
+an ideal world, IPv6 should be used; however, the code does not depend on this.
+
+The financial database is simply a PostgreSQL server. It has no custom software
+and no access other than from the states' servers (ergo its HBA config can and
+should stipulate that their IPs are the only ones permitted); each state gets a
+dedicated database user, and standard security methods will be deployed to
+ensure that this server cannot be tampered with. This is all unsurprising to a
+PostgreSQL database admin.
+
+Where things get interesting is the per-state servers. These contain a local
+PostgreSQL database which records cards and open tickets, and also maintain a
+running instance of the server script. The server receives touch-on and -off
+requests, and sends back responses saying "OK, no charge", "OK, fare deducted"
+(with an amount), or "Denied, insufficient funds". The client (which may be a
+single validator, or may be a bank of validators) communicates solely with the
+one local server.
+
+A card will most often be used in the state that issued it, but this is not a
+requirement. Whenever a card is used for the first time in a new state, it is
+verified against an account, and then a new per-state record is created for it;
+most likely, the account will then be debited the price of a ticket. This makes
+multi-state usage almost transparent - a Melburnian commuter with an active
+monthly ticket can travel to Adelaide, the monthly ticket is ignored, and a few
+dollars get debited to pay for local travel.
+
+All communication goes through the local server, which is therefore in total
+control of the system. It uses a Unix socket to access its local database, a
+TCP/IP socket (with SSL) to access the financial database, and UDP (with
+cryptographic signatures, but no encryption) to receive and respond to touch
+requests. Note that this implies that a MITM could snoop on validations. If
+this is deemed to be a problem, the payload can be encrypted using the target
+server's public key, at the cost of forcing all packets to carry exactly 512
+bytes of data, with a maximum of 245 bytes of true payload.
+
+Cryptography is based around SSH keypairs, which can be generated with the Unix
+'ssh-keygen' command; they are kept in their text format for convenience. Every
+client will need a keypair, and the server will need a lookup table mapping IP
+addresses to public keys; the server also needs a keypair, and the public key
+can be embedded into the client software.
