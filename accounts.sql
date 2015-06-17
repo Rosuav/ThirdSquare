@@ -5,6 +5,14 @@
 -- contacted, and can cover multiple jurisdictions as long as currencies are
 -- consistent across them all.
 
+create table operators (
+	id smallint not null,
+	-- Whenever an operator triggers a debit on a card, it also gets
+	-- credited to that operator.
+	balance integer not null default 0,
+	description varchar not null default ''
+);
+
 create table accounts (id serial primary key,
 	contact varchar not null default '', -- Contact name, email address, whatever. Not managed by ThirdSquare directly.
 	balance integer not null default 0, -- In cents
@@ -12,7 +20,7 @@ create table accounts (id serial primary key,
 );
 
 create table cards (
-	-- Each creator is allocated a tiny number - preferably a single digit.
+	-- Each creator is allocated a tiny number - preferably a single digit. See operators table.
 	-- Their ID allocations are then their own.
 	creator smallint not null, id integer not null, primary key (creator, id),
 	account integer not null references accounts,
