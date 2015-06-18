@@ -1,3 +1,5 @@
 server_key
 server_key.pub
 client_keys
+client_key
+client_key.pub
