@@ -58,3 +58,35 @@ Cryptography is based around SSH keypairs, which can be generated with the Unix
 client will need a keypair, and the server will need a lookup table mapping IP
 addresses to public keys; the server also needs a keypair, and the public key
 can be embedded into the client software.
+
+The system is built on a concept of touching on and touching off, but it's not
+always possible to recognize one from the other, and touches off do not always
+happen. When a touch occurs, check to see if it could plausibly be a touch off
+for the previous touch-on: same mode of transport, same vehicle (if applicable
+- all railway stations are the "same vehicle"), same day, and any other checks
+appropriate to the mode. If everything checks out, count this as a touch off.
+
+Any time there is a touch on for an already-touched-on card, and any time that
+the card is probed and it's been more than a day since the touch on, the server
+will register a "presumed touch off". This is done as the "longest logical"
+journey from the touch-on point; it might be possible to travel further (esp on
+the trains - you could ride in and out all day), but a normal sane traveller
+would be unlikely to travel further than this. For buses and trams, this would
+be the end of the route; for railway stations, it would be Zone 1+2, regardless
+of the line you're on (an exception MIGHT be made for failing to touch off on
+the Alamein line).
+
+To simplify the boundary conditions (particularly with presumed touches off),
+timestamps are ignored for touches off. If you board a vehicle at 8:59 when you
+have an open ticket until 9:00, you will not be charged for a daily ticket.
+The touch off (presumed or explicit) will affect your zone usage, however.
+
+When you touch on, the following steps are performed:
+1) See if you have an active ticket for the zone you're in. (If you're in
+   overlap, check for either.) If so, done.
+2) See if you had an active ticket for that zone (either zone) earlier today.
+   If so, issue a daily; done.
+3) See if there's an active ticket for the other zone, if you're not in
+   overlap. If so, expand it to 1+2; done.
+4) Otherwise, issue a new two-hourly ticket for the zone you're in.
+   (In overlap... not sure.)
