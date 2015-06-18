@@ -3,7 +3,7 @@
 -- Each one must have a single point of contact with the accounts database,
 -- which will be recorded in its HBA file.
 
-create table cards (id serial primary key,
+create table cards (id integer primary key, -- Must first exist in accounts::cards
 	contact varchar not null default '' -- As with account contacts, this could be email address, phone, whatever. Not managed by ThirdSquare.
 );
 

@@ -19,10 +19,7 @@ create table accounts (id serial primary key,
 	comments varchar not null default ''
 );
 
-create table cards (
-	-- Each creator is allocated a tiny number - preferably a single digit. See operators table.
-	-- Their ID allocations are then their own.
-	creator smallint not null, id integer not null, primary key (creator, id),
+create table cards (id serial primary key, -- Cards may well be issued structured numbers, so this could just be integer rather than serial
 	account integer not null references accounts,
 	-- Inactive cards are treated as if they no longer exist. Their record is
 	-- kept for historical information only.
