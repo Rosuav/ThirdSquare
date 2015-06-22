@@ -10,12 +10,14 @@ constant retry_delay = ({2, 3, 5, 10, 15, 25, 60, 120, 120, 120, 120}); //Retry 
 //For debugging, enable a console log of incoming packets
 #define VERBOSE
 
+object timer;
+
 void handle_packet(string body, string ip, int port)
 {
 	#ifdef VERBOSE
 	write("Response body: %s\n",body);
 	#endif
-	if (body == "OK") {write("OK response received.\n"); return;}
+	if (body == "OK") {write("OK response received in %f seconds.\n", timer->peek()); return;}
 }
 
 void console()
@@ -24,7 +26,7 @@ void console()
 	write(">> Entering interactive mode\n");
 	while (string cmd=Stdio.stdin.gets()) switch (cmd)
 	{
-		case "helo": send_packet("HELO", server_ip, 5000); break;
+		case "helo": timer = System.Timer(); send_packet("HELO", server_ip, 5000); break;
 		case "quit": exit(0);
 		default: write("What?\n");
 	}
