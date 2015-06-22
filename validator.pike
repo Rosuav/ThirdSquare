@@ -24,7 +24,7 @@ void console()
 {
 	G->G->consolethread = this_thread();
 	write(">> Entering interactive mode\n");
-	while (string cmd=Stdio.stdin.gets()) switch (cmd)
+	while (string cmd=Stdio.stdin.gets()) switch (lower_case(cmd))
 	{
 		case "helo": timer = System.Timer(); send_packet("HELO", server_ip, 5000); break;
 		case "quit": exit(0);
