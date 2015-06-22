@@ -51,8 +51,7 @@ void handle_packet(string body, string ip, int port)
 //Parse and load a private key for encryption purposes
 object load_private_key(string fn)
 {
-	sscanf(Stdio.read_file(fn), "%*s-----BEGIN RSA PRIVATE KEY-----%s-----END RSA PRIVATE KEY-----", string key);
-	return Standards.PKCS.RSA.parse_private_key(MIME.decode_base64(key));
+	return Standards.PKCS.RSA.parse_private_key(Standards.PEM.simple_decode(Stdio.read_file(fn)));
 }
 
 //Parse and load a public key for verification purposes
