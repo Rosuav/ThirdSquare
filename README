@@ -147,8 +147,8 @@ as a touch off), but with the following corner cases:
    auto-touched-off at Pakenham; or boards a Lilygrave shuttle at FTG, gets
    off at Ringwood, and expects to be auto-touched-off there. In both cases,
    the implicit touch off will happen at FSS, which will most likely add an
-   additional zone to the charge. Solution: Make sure you touch off for the
-   lowest charge.
+   additional zone to the charge. Solution: Make sure you always touch off for
+   the lowest fare, same as we've always said.
 2) Journeys running into the city and out again will be charged for their two
    end points and nothing in between. This makes the rail network into a magic
    orbital route - you can ride from Pakenham to Belgrave and be charged as if
