@@ -168,3 +168,13 @@ as a touch off), but with the following corner cases:
    incidence rather than implement their charges.)
 This requires that a vehicle know in advance what its next trip will be, or
 else to reject touches-on until it knows that. Is that a problem? TODO: Ask.
+Additional corner case: If you ride a vehicle toward one EOT, then get off and
+don't touch off, then wait for it to complete *one entire cycle* and return to
+you (going in the same direction as when you'd departed), it would be seen as
+a touch off; the target and vehicle are the same, so you clearly are touching
+off. To prevent this, we could add a fourth value to the touch tuple: a unique
+run number, which MUST increment any time the same vehicle makes a run to the
+same destination on the same day. (It MAY increment at other times too, but
+it MUST NOT ever repeat a (vehicle, date, target) tuple.) But the likelihood
+that this would ever actually matter is extremely low, and I'm leaving this as
+a "note to self" without any implementation requirement.
