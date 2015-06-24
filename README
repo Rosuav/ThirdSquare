@@ -127,8 +127,44 @@ system MAY at that time bill you for a previous trip). This ensures that your
 ticket is still in its "touched on" state any time an AO checks it.
 
 Each touch operation sends two signature values: where the vehicle is now, and
-where it will be at end-of-trip. (Again: Railway stations... problem.) The end
-marker is stored as the ticket's touched-on status, and if the next touch isn't
-a touch off, then that value is used as the implicit touch off. It MAY be safe
-to recognize a touch-off by the fact that it has the same end-of-trip marker.
-TODO: Discuss!
+where it will be at end-of-trip. The end marker and vehicle identifier are
+stored as the ticket's touched-on status. If the next touch is on the same
+vehicle and has the same end-of-trip marker, it is a touch-off; otherwise it is
+a touch-on, and an implicit touch-off is performed at the end-of-trip location.
+Edge case: As a vehicle approaches the end-of-trip location (usually a route
+terminus), it MUST instantly update its end-of-trip to be the *next* end (which
+may be the terminus at the far end, a depot, or "NULL" meaning that touches-on
+are to be rejected (vehicle not taking passengers)); so long as its location
+matches the ticket's EOT marker, it is a touch off.
+Additional edge case: Railway stations don't have a concept of vehicles or trip
+end locations. Defining the entire rail network as a single vehicle with a
+constant end location of FSS gives us a reasonably plausible average, with the
+system broadly working (as long as you touch off at any station, it'll be seen
+as a touch off), but with the following corner cases:
+1) People will think of down journeys as ending at the down terminus, and up
+   journeys as ending at the up terminus. This can produce unexpected charges
+   when someone boards at Dandenong, hops off at Officer, and expects to be
+   auto-touched-off at Pakenham; or boards a Lilygrave shuttle at FTG, gets
+   off at Ringwood, and expects to be auto-touched-off there. In both cases,
+   the implicit touch off will happen at FSS, which will most likely add an
+   additional zone to the charge. Solution: Make sure you touch off for the
+   lowest charge.
+2) Journeys running into the city and out again will be charged for their two
+   end points and nothing in between. This makes the rail network into a magic
+   orbital route - you can ride from Pakenham to Belgrave and be charged as if
+   you quantum-tunneled from one to the other. In this case, though, I expect
+   that there will normally be an orbital bus route that does the same job and
+   quicker, so this will be significant only in a very VERY few cases, and
+   it'll be the slow option anyway. Slightly less bizarre is the through-city
+   trip - board at Pakenham, ride all the way in (maybe change trains in the
+   Loop, but don't touch off/on), and then all the way out to Broadmeadows.
+   Again, your fare will be calculated as if you quantum tunneled from one to
+   the other. There's no viable way to recognize the actual trip taken, so we
+   grant you a cheaper fare as an apology for the slowness of such travel.
+   (Note that the same assumption applies to other trips, too, but the plan is
+   for most vehicles to not cross myriad zone boundaries; the 903 needs to be
+   reworked to make it marginally sane anyway. In those cases, we could have a
+   system of "passed-through zones", but I would much prefer to minimize their
+   incidence rather than implement their charges.)
+This requires that a vehicle know in advance what its next trip will be, or
+else to reject touches-on until it knows that. Is that a problem? TODO: Ask.
