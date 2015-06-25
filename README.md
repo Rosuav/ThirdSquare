@@ -211,3 +211,59 @@ need a hack that puts them on a different day-break. Otherwise, just treat them
 the same way that SkyBus and your morning coffee are treated - a simple price
 that gets charged to your account, and does not interact in any way with ticket
 usage for the rest of the system.
+
+Identifiers: Vehicles
+=====================
+
+ThirdSquare needs to be able to uniquely identify every tram and bus, in order
+to correctly recognize a touch-off. Currently, the system is posited on the use
+of fixed IP addresses to identify these vehicles; if no 3G/4G provider is able
+to guarantee this, an alternative could be devised involving a lookup table,
+but this has security implications. Even with that change, though, the system
+depends on any given vehicle maintaining a unique and constant IP address for
+the duration of one "session", with no passengers remaining on board across a
+session break. For instance, a bus might return to the depot, shut down, and
+relinquish its IP address, but if it reboots during a run, matters could become
+extremely messy if its IP changes.
+
+The IP address is tied to a public key. Consequently, each vehicle must have a
+single encryption computer; it may have multiple validators, but they will be
+considered to be a single "unit". Notably, if a user touches on at one of the
+validators and touches off at another one, they are considered to be the same
+vehicle if and only if they use the same IP address and encryption key.
+
+Railway stations do not have a concept of vehicles (the entire rail network is
+treated as one vehicle), but must still tie encryption keys to IP addresses.
+Whether a station has a single key+IP or multiple does not matter; it would be
+perfectly reasonable to operate a two-platform island station off a single IP,
+and equally reasonable to operate Spencer Street Station off several separate
+nodes, just as long as each node has a dedicated IP address and keypair.
+
+Identifiers: Locations
+======================
+
+Whenever a ThirdSquare card is touched to a validator, that validator MUST know
+its current location. This location need not necessarily correspond to a single
+point on the globe, but MUST carry a single zone map, and ideally, it should be
+impractical for anyone to board a vehicle, ride, and then disembark, all within
+a single location. The system MAY assume that a second touch in the location of
+the latest touch on is a cancellation rather than a short trip.
+
+Locations SHOULD be identified in a service-specific way, such that bus, train,
+and tram locations in near proximity are still distinguishable. This allows for
+zone-map differences based on mode of travel, which may be important.
+
+Identifiers: Zones
+==================
+
+Ticketing zones are broad areas of coverage charged at the same rate. Any given
+location may be in one single zone, or may be in the overlap of any number of
+zones; a ticket for any of those zones is valid for travel at that location.
+The set of all zones valid at a given location is that location's zone map. The
+set of all zones for which a period ticket is valid is similar; so long as any
+intersection exists between the ticket's zones and the location's zone map, it
+is valid. For automated tickets, the system chooses the minimum number of zones
+in the manner described above.
+
+Zones must be defined in a totally ordered manner. Identifying them with simple
+numbers or alphabetizable strings is sufficient.
