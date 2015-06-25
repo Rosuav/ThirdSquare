@@ -1,4 +1,6 @@
+=============================================================
 ThirdSquare - proof-of-concept ticketing system for Australia
+=============================================================
 
 (Why, the README alone is worth a thousand pounds a word!)
 
@@ -78,6 +80,9 @@ To simplify the boundary conditions (particularly with presumed touches off),
 timestamps are ignored for touches off. If you board a vehicle at 8:59 when you
 have an open ticket until 9:00, you will not be charged for a daily ticket.
 The touch off (presumed or explicit) will affect your zone usage, however.
+
+Automated tickets
+=================
 
 Prepurchased tickets are always of at least one day duration, and have their
 zones listed explicitly. Automatic tickets currently have a maximum duration of
@@ -183,6 +188,9 @@ same destination on the same day. (It MAY increment at other times too, but
 it MUST NOT ever repeat a (vehicle, date, target) tuple.) But the likelihood
 that this would ever actually matter is extremely low, and I'm leaving this as
 a "note to self" without any implementation requirement.
+
+Timestamping
+============
 
 Date and time: The system is posited on a cycle of days, each with a known
 beginning and end. This works very nicely with a system that has a regular
