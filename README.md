@@ -20,8 +20,12 @@ benefit. An expert on NFC hardware can doubtless advise on this point, and also
 on the related point of permitting people to use their mobile phones as
 ThirdSquare cards.)
 
-All computers in this operation should have unique and stable IP addresses. In
+All computers in this operation SHOULD have unique and stable IP addresses. In
 an ideal world, IPv6 should be used; however, the code does not depend on this.
+
+(The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
+"SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be
+interpreted as described in RFC 2119.)
 
 The financial database is simply a PostgreSQL server. It has no custom software
 and no access other than from the states' servers (ergo its HBA config can and
