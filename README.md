@@ -109,17 +109,17 @@ time a touch (or presumed touch) occurs, the following steps are performed:
 3. Add a new entry to the ticket, listing the zones of the current trip.
 4. Count the number of zones needed for this ticket. This is the smallest
    number of zones which can, between them, cover every touch done today.
-   4.1. Take the union of all zones which have been used at all.
-   4.2. For each zone in the union, remove it from the union, then iterate over
-        all touches in the ticket, checking intersection with that touch's zones.
-        If any intersection comes up empty, the zone is needed, and must be kept.
-        Otherwise, it can be removed.
-   4.3. For ultimate optimization, perform this search recursively and seek the
-        minimum zone count. As an efficiency cheat, assume that any removal is a
-        valid removal, but then acknowledge that there MAY be crazy edge cases
-        that depend on the order of the checks done. For consistency, always check
-        in an obvious order, eg lexicographically by zone identifier.
-   4.4. The number of zones in the union at the end is the ticket's zone count.
+   a. Take the union of all zones which have been used at all.
+   b. For each zone in the union, remove it from the union, then iterate over
+      all touches in the ticket, checking intersection with that touch's zones.
+      If any intersection comes up empty, the zone is needed, and must be kept.
+      Otherwise, it can be removed.
+   c. For ultimate optimization, perform this search recursively and seek the
+      minimum zone count. As an efficiency cheat, assume that any removal is a
+      valid removal, but then acknowledge that there MAY be crazy edge cases
+      that depend on the order of the checks done. For consistency, always
+      check in an obvious order, eg lexicographically by zone identifier.
+   d. The number of zones in the union at the end is the ticket's zone count.
 5. If the current zone count exceeds the paid-for zone count, charge for the
    additional zone(s) and reject the touch if the charge is rejected.
 
