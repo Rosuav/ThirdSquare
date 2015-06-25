@@ -129,6 +129,12 @@ the ticket's period. Handling this for a single day is reasonable (there won't
 normally be more than maybe a dozen touches in a typical day), but allowing the
 automated tickets to expand to weekly, monthly, or yearly (!!) would be utterly
 unworkable; the algorithm as described above scales with the square of touches.
+Additionally, while it's reasonable to count a single day's travel as covering
+all applicable zones, trying to expand this to multiple days becomes hairier;
+if a commuter steps outside his usual route for one day in a month, how should
+this be charged? The safest solution is to keep each day's travel separate. For
+the regular travellers who wish to save money by using longer-duration tickets,
+the overhead of explicitly purchasing them will be easily justified.
 
 Conceptually, your ticket will be touched off automatically when the vehicle
 you were on reaches its destination. Practically, however, this happens only on
@@ -151,7 +157,7 @@ end locations. Defining the entire rail network as a single vehicle with a
 constant end location of FSS gives us a reasonably plausible average, with the
 system broadly working (as long as you touch off at any station, it'll be seen
 as a touch off), but with the following corner cases:
-1) People will think of down journeys as ending at the down terminus, and up
+1. People will think of down journeys as ending at the down terminus, and up
    journeys as ending at the up terminus. This can produce unexpected charges
    when someone boards at Dandenong, hops off at Officer, and expects to be
    auto-touched-off at Pakenham; or boards a Lilygrave shuttle at FTG, gets
@@ -159,7 +165,7 @@ as a touch off), but with the following corner cases:
    the implicit touch off will happen at FSS, which will most likely add an
    additional zone to the charge. Solution: Make sure you always touch off for
    the lowest fare, same as we've always said.
-2) Journeys running into the city and out again will be charged for their two
+2. Journeys running into the city and out again will be charged for their two
    end points and nothing in between. This makes the rail network into a magic
    orbital route - you can ride from Pakenham to Belgrave and be charged as if
    you quantum-tunneled from one to the other. In this case, though, I expect
