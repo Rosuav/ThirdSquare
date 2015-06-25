@@ -95,7 +95,12 @@ time a touch (or presumed touch) occurs, the following steps are performed:
    the touch - done.
 2) Look for an existing automated ticket for this card. If there is none, add
    one with zero paid-for zones and a cut-off time as described above. If there
-   is one, check if its duration has expired; if so, expand it to daily.
+   is one, check if its duration has expired; if so, expand it to daily. NOTE:
+   This could add a nasty slab to the price, if the user has previously touched
+   on in a large number of zones, and particularly if s/he failed to touch off,
+   picking up some very remote touches. The sudden expansion to daily will cost
+   roughly as much as all previous touches combined (more if it also adds yet
+   another zone to the bill).
 3) Add a new entry to the ticket, listing the zones of the current trip.
 4) Count the number of zones needed for this ticket. This is the smallest
    number of zones which can, between them, cover every touch done today.
