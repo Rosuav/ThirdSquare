@@ -64,8 +64,8 @@ can be embedded into the client software.
 The system is built on a concept of touching on and touching off, but it's not
 always possible to recognize one from the other, and touches off do not always
 happen. When a touch occurs, check to see if it could plausibly be a touch off
-for the previous touch-on: same mode of transport, same vehicle (if applicable
-- all railway stations on one line are the "same vehicle", and the city loop is
+for the previous touch-on: same mode of transport, same vehicle (if applicable;
+all railway stations on one line are the "same vehicle", and the city loop is
 the same vehicle as all other lines), and same day. If so, it's a touch off.
 
 Any time there is a touch on for an already-touched-on card, and any time that
@@ -95,10 +95,10 @@ double-price ticket and granting until 4AM.
 Zone usage of automated tickets is completely independent of the duration. Each
 time a touch (or presumed touch) occurs, the following steps are performed:
 
-1) Look for a prepurchased ticket valid for the current day and having nonzero
+1. Look for a prepurchased ticket valid for the current day and having nonzero
    zone intersection with the current location's zones. If there is one, permit
    the touch - done.
-2) Look for an existing automated ticket for this card. If there is none, add
+2. Look for an existing automated ticket for this card. If there is none, add
    one with zero paid-for zones and a cut-off time as described above. If there
    is one, check if its duration has expired; if so, expand it to daily. NOTE:
    This could add a nasty slab to the price, if the user has previously touched
@@ -106,21 +106,21 @@ time a touch (or presumed touch) occurs, the following steps are performed:
    picking up some very remote touches. The sudden expansion to daily will cost
    roughly as much as all previous touches combined (more if it also adds yet
    another zone to the bill).
-3) Add a new entry to the ticket, listing the zones of the current trip.
-4) Count the number of zones needed for this ticket. This is the smallest
+3. Add a new entry to the ticket, listing the zones of the current trip.
+4. Count the number of zones needed for this ticket. This is the smallest
    number of zones which can, between them, cover every touch done today.
-4.1) Take the union of all zones which have been used at all.
-4.2) For each zone in the union, remove it from the union, then iterate over
+4.1. Take the union of all zones which have been used at all.
+4.2. For each zone in the union, remove it from the union, then iterate over
      all touches in the ticket, checking intersection with that touch's zones.
      If any intersection comes up empty, the zone is needed, and must be kept.
      Otherwise, it can be removed.
-4.3) For ultimate optimization, perform this search recursively and seek the
+4.3. For ultimate optimization, perform this search recursively and seek the
      minimum zone count. As an efficiency cheat, assume that any removal is a
      valid removal, but then acknowledge that there MAY be crazy edge cases
      that depend on the order of the checks done. For consistency, always check
      in an obvious order, eg lexicographically by zone identifier.
-4.4) The number of zones in the union at the end is the ticket's zone count.
-5) If the current zone count exceeds the paid-for zone count, charge for the
+4.4. The number of zones in the union at the end is the ticket's zone count.
+5. If the current zone count exceeds the paid-for zone count, charge for the
    additional zone(s) and reject the touch if the charge is rejected.
 
 These steps are 100% reproducible and deterministic, and can never decrease the
