@@ -16,6 +16,10 @@ constant retry_delay = ({2, 3, 5, 10, 15, 25, 60, 120, 120, 120, 120});
 
 object timer;
 
+//Next targets. If this array is empty, our next target is 0 and touches-on are not accepted.
+array(int) targets=({ });
+int location; //Current location (possibly a location a bit ahead of us - touches are presumed to happen here)
+
 void handle_packet(string body, string ip, int port)
 {
 	#ifdef VERBOSE
@@ -24,14 +28,50 @@ void handle_packet(string body, string ip, int port)
 	if (body == "OK") {write("OK response received in %f seconds.\n", timer->peek()); return;}
 }
 
+//Called any time a card is touched to a reader.
+//Will eventually result in a call to touch_result. Note that we kinda need a different touch_result for console and real touches.
+void touch(int card)
+{
+}
+
 void console()
 {
 	G->G->consolethread = this_thread();
 	write(">> Entering interactive mode\n");
-	while (string cmd=Stdio.stdin.gets()) switch (lower_case(cmd))
+	while (string cmd=Stdio.stdin.gets()) switch (lower_case((cmd/" ")[0]))
 	{
 		case "helo": timer = System.Timer(); send_packet("HELO", server_ip, 5000); break;
 		case "quit": exit(0);
+		case "run":
+		{
+			array(string) termini=(cmd/" ")[1..];
+			if (!sizeof(termini)) {write("USAGE: run terminus [terminus [terminus...]]\nStarts a run, setting the current terminus, and possibly more\ntermini after that. After the last, 0 is sent.\n"); break;}
+			targets+=(array(int))termini;
+			write("Current target: %d\nNext target: %d\n",targets[0],sizeof(targets)>1 && targets[1]);
+			if (sizeof(targets)>2) write("%d additional targets after that.\n",sizeof(targets)-2);
+			break;
+		}
+		case "loc":
+		{
+			sscanf(cmd,"loc %d",int loc);
+			if (!loc) {write("USAGE: loc new_location\n"); break;}
+			location=loc;
+			write("We are now at location %d.\n",loc);
+			if (sizeof(targets) && loc==targets[0])
+			{
+				targets=targets[1..];
+				if (sizeof(targets)) write("Terminus! Our next target is: %d\n", targets[0]);
+				else write("Terminus! End of the line, everybody off.\n");
+			}
+			break;
+		}
+		case "touch":
+		{
+			sscanf(cmd,"touch %d",int card);
+			if (!card) {write("USAGE: touch cardid\n"); break;}
+			touch(card);
+			break;
+		}
 		default: write("What?\n");
 	}
 }
