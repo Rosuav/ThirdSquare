@@ -251,7 +251,14 @@ its current location. This location need not necessarily correspond to a single
 point on the globe, but MUST carry a single zone map, and ideally, it should be
 impractical for anyone to board a vehicle, ride, and then disembark, all within
 a single location. The system MAY assume that a second touch in the location of
-the latest touch on is a cancellation rather than a short trip.
+the latest touch on is a cancellation rather than a short trip. Note that using
+the same location ID for multiple routes is acceptable as long as no route ever
+exits a location and then reenters it, all while heading toward the same target
+location; this could confuse location descriptors. In other words, it's fine to
+exit a location, go to the terminus, then start a return journey that goes into
+the same location in the opposite direction; but not to loop around and hit the
+same place again after leaving it... it may be safer to deem the entire loop as
+a single location, although this is NOT RECOMMENDED.
 
 Locations SHOULD be identified in a service-specific way, such that bus, train,
 and tram locations in near proximity are still distinguishable. This allows for
