@@ -5,7 +5,11 @@ mapping(int:function) services=([0|HOGAN_UDP:decode_packet]);
 
 //IDs that we're awaiting responses for (mapped to [retry_count, data])
 mapping(int:array(int|string)) awaiting=([]);
-constant retry_delay = ({2, 3, 5, 10, 15, 25, 60, 120, 120, 120, 120}); //Retry for a maximum of ten minutes before giving up. If a bus stops for ten mins in a dead spot, we have a problem.
+//Retry for a maximum of ten minutes before giving up. If a bus stops for ten mins in a dead spot, we have a problem.
+//Note that the server uses actual time of receipt to handle ticketing, rather than an embedded timestamp; the retry
+//loop could theoretically cause ticket extension, but only for touches-on, and frankly, if you're touching on THAT
+//close to your ticket's expiry, it's not that big a surprise if it gets extended to daily.
+constant retry_delay = ({2, 3, 5, 10, 15, 25, 60, 120, 120, 120, 120});
 
 //For debugging, enable a console log of incoming packets
 #define VERBOSE
