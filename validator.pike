@@ -40,7 +40,7 @@ void console()
 	write(">> Entering interactive mode\n");
 	while (string cmd=Stdio.stdin.gets()) switch (lower_case((cmd/" ")[0]))
 	{
-		case "helo": timer = System.Timer(); send_packet("HELO", server_ip, 5000); break;
+		case "helo": timer = System.Timer(); sign_and_send_packet("HELO", server_ip, 5000); break;
 		case "quit": exit(0);
 		case "run":
 		{

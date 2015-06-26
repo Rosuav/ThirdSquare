@@ -8,17 +8,26 @@ Sql.Sql ticketsdb, accountsdb; //Database connections (must be distinct)
 //For debugging, enable a console log of incoming packets
 #define VERBOSE
 
-//Sign and send a response packet. Note that the protocol requires bytes, not text. For
-//safety and simplicity, I am mandating ASCII for the time being; whether the protocol
-//expands to UTF-8 or goes binary can be decided later.
-void send_packet(string(0..127) data, string ip, int port)
+//Send a pre-signed request or response packet.
+void send_packet(string(0..255) data, string ip, int port)
 {
 	object udp=values(G->socket)[0];
+	udp->send(ip, port, data);
+}
+
+//Sign a packet, ready to send. Note that the protocol requires bytes, not text. For
+//safety and simplicity, I am mandating ASCII for the time being; whether the protocol
+//expands to UTF-8 or goes binary can be decided later.
+string sign_packet(string(0..127) data, string ip)
+{
 	if (sizeof(data)>256) exit(1, "Data too long!\n"); //We want the resulting packet to have no more than 512 data bytes. Boom! Assert fail.
 	string sig = private_key->pkcs_sign(data, Crypto.SHA256); //The signature should always be exactly 256 bytes (2048 bits) long.
 	//data = public_keys[ip]->encrypt(data); //Optionally encrypt as well as signing. Note that this reduces the maximum payload to 245 bytes.
-	udp->send(ip, port, data + sig);
+	return data + sig;
 }
+
+//Convenience function to sign and send a packet immediately.
+void sign_and_send_packet(string(0..127) data, string ip, int port) {send_packet(sign_packet(data, ip), ip, port);}
 
 //Receive and verify a packet
 void decode_packet(int portref, mapping(string:int|string) data)
@@ -45,7 +54,7 @@ void handle_packet(string body, string ip, int port)
 	write("Message body: %s\n",body);
 	#endif
 	//Simple connectivity test: Send "HELO", get back "OK". Great way to test key sharing.
-	if (body == "HELO") send_packet("OK", ip, port);
+	if (body == "HELO") sign_and_send_packet("OK", ip, port);
 }
 
 //Parse and load a private key for encryption purposes
