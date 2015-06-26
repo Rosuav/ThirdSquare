@@ -20,18 +20,18 @@ object timer;
 array(int) targets=({ });
 int location; //Current location (possibly a location a bit ahead of us - touches are presumed to happen here)
 
+//Called any time a card is touched to a reader.
+//Will eventually result in a call to touch_result. Note that we kinda need a different touch_result for console and real touches.
+void touch(int card)
+{
+}
+
 void handle_packet(string body, string ip, int port)
 {
 	#ifdef VERBOSE
 	write("Response body: %s\n",body);
 	#endif
 	if (body == "OK") {write("OK response received in %f seconds.\n", timer->peek()); return;}
-}
-
-//Called any time a card is touched to a reader.
-//Will eventually result in a call to touch_result. Note that we kinda need a different touch_result for console and real touches.
-void touch(int card)
-{
 }
 
 void console()
