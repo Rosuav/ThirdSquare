@@ -20,10 +20,41 @@ object timer;
 array(int) targets=({ });
 int location; //Current location (possibly a location a bit ahead of us - touches are presumed to happen here)
 
+//Touch packets are all uniquely numbered (within a source IP) for reference.
+int packetid=0;
+
+void touch_result(int id, string result)
+{
+	array state = awaiting[id]; if (!state) return;
+	#ifdef VERBOSE
+	if (!result) write("Timeout waiting for ID %d\n", id);
+	else write("Response for ID %d\n", id);
+	#endif
+}
+
+void retry(int id)
+{
+	array state = awaiting[id]; if (!state) return;
+	#ifdef VERBOSE
+	write("Sending request for ID %d\n", id);
+	#endif
+	send_packet(state[1], server_ip, server_port);
+	if (state[0] == sizeof(retry_delay)) call_out(touch_result, 2, id, 0); //After the last retry, give up in two seconds.
+	else call_out(retry, retry_delay[state[0]++], id);
+}
+
 //Called any time a card is touched to a reader.
 //Will eventually result in a call to touch_result. Note that we kinda need a different touch_result for console and real touches.
 void touch(int card)
 {
+	int id = ++packetid;
+	string msg = sprintf("TOUCH id=%d card=%d loc=%d targ=%d", id, card, location, sizeof(targets) && targets[0]);
+	string packet = sign_packet(msg, server_ip);
+	#ifdef VERBOSE
+	write("%s\n", msg);
+	#endif
+	awaiting[id] = ({0, packet});
+	retry(id);
 }
 
 void handle_packet(string body, string ip, int port)
