@@ -1,6 +1,6 @@
 inherit "thirdsquare.pike";
 
-constant server_ip = "127.0.0.1";
+constant server_ip = "127.0.0.1", server_port = 5000;
 mapping(int:function) services=([0|HOGAN_UDP:decode_packet]);
 
 //IDs that we're awaiting responses for (mapped to [retry_count, data])
@@ -40,7 +40,7 @@ void console()
 	write(">> Entering interactive mode\n");
 	while (string cmd=Stdio.stdin.gets()) switch (lower_case((cmd/" ")[0]))
 	{
-		case "helo": timer = System.Timer(); sign_and_send_packet("HELO", server_ip, 5000); break;
+		case "helo": timer = System.Timer(); sign_and_send_packet("HELO", server_ip, server_port); break;
 		case "quit": exit(0);
 		case "run":
 		{
