@@ -216,6 +216,20 @@ the same way that SkyBus and your morning coffee are treated - a simple price
 that gets charged to your account, and does not interact in any way with ticket
 usage for the rest of the system.
 
+Note that currently, the system assumes that time increases monotonically, and
+that touches are processed in chronological order. The former can be ensured by
+slewing (rather than stepping) the server's clock, such that any date, once
+over, will never be re-entered; if the server's clock is ever found to be too
+far wrong, it must be corrected during an effective outage. The latter is a
+major problem with the bus/tram retry loop - it is theoretically possible to
+touch on, then touch off in a dead spot, make all haste to your next service,
+touch on again, and then have the retry of your touch off arrive. This would
+result in all three touches (and the touch off at the end of your second trip)
+to be counted as touches-on. To reduce the chances of this occurring, coverage
+at railway stations needs to be excellent; it may also be important to hammer
+the retry loop, possibly with no gap exceeding 15 seconds. None of this can
+entirely prevent the problem, but it will make it vanishingly unlikely.
+
 Identifiers: Vehicles
 =====================
 
