@@ -20,7 +20,7 @@ object timer;
 array(int) targets=({ });
 int location; //Current location (possibly a location a bit ahead of us - touches are presumed to happen here)
 
-//Touch packets are all uniquely numbered (within a source IP) for reference.
+//Touch packets are all uniquely numbered (within a source IP and date) for reference.
 int packetid=0;
 
 void touch_result(int id, string result)

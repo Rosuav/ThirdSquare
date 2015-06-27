@@ -55,6 +55,68 @@ void handle_packet(string body, string ip, int port)
 	#endif
 	//Simple connectivity test: Send "HELO", get back "OK". Great way to test key sharing.
 	if (body == "HELO") sign_and_send_packet("OK", ip, port);
+
+	//Note that all timestamping is on the basis of processing time, not the time the
+	//packet was sent. This MAY occasionally be significant, but attempting to embed
+	//timestamps in the packets raises as many issues as it solves (eg clock sync over
+	//the whole system), so we accept that delayed packet delivery can cause problems.
+	//mapping now = localtime(time());
+	mapping now_offset = localtime(time()-4*3600); //For the purposes of date calculations, we reset at 4AM.
+	string today = sprintf("%d-%02d-%02d", now_offset->year+1900, now_offset->mon+1, now_offset->mday);
+	//Parse a touch request. Note that currently the format is quite strict; it's designed to be readable and extensible,
+	//though, and can ultimately be parsed as a series of name=value pairs.
+	if (sscanf(body, "TOUCH id=%d card=%d loc=%d targ=%d", int id, int card, int loc, int targ) && id && card && loc) //Note that targ is allowed to be zero
+	{
+		ticketsdb->query("begin"); accountsdb->query("begin");
+		#define RETURN(x) {accountsdb->query("commit"); ticketsdb->query("commit"); sign_and_send_packet(x, ip, port); return;}
+		array ret = ticketsdb->typed_query("select touch_target, touch_date, touch_vehicle, touch_id from active_cards where id=%d", card);
+		if (!sizeof(ret))
+		{
+			//The card has never been used with this system yet. Ensure that it exists in the master,
+			//then create it here. Note that we don't care about the potential race between the two
+			//databases; tickets will be created but not usually destroyed.
+			if (!sizeof(accountsdb->typed_query("select id from cards where id=%d", card))) RETURN(sprintf("REJECT id=%d card=%d reason=BADCARD", id, card))
+			ticketsdb->query("insert into active_cards (id) values (%d)", card);
+			ret = ({ ([]) });
+		}
+		mapping info = ret[0];
+		int prevcharge=0, charge=0;
+		//If all three signature values match, then this is a repeated touch, so skip any
+		//database recording and just jump straight to returning a response. We know that
+		//the response has to be affirmative, or the previous touch wouldn't have been in
+		//the database. TODO: Also figure out if money got charged.
+		if (info->touch_date!=today || info->touch_vehicle!=ip || info->touch_id!=id)
+		{
+			//The signatures DON'T match, so this is a real touch.
+			if (info->touch_target)
+			{
+				//The card was previously in the touched-on state. There are three
+				//possibilities: Either this is a re-touch at the same location on
+				//the same vehicle (which MAY be treated as a cancellation), or it
+				//is a touch-off (same vehicle, same date, different location), or
+				//it is an unrelated touch. If it's unrelated, we simulate a touch
+				//off at the previous target, and then process this as a touch on.
+				//Otherwise, we process this as a touch off.
+				if (info->touch_date==today && info->touch_vehicle==ip //Same date and vehicle, else it's not possibly a touch off
+					&& (info->touch_target==targ || info->touch_target==loc)) //Either the same target, or currently located at the target (ie we've just hit a terminus)
+				{
+					//It's a touch off. Flag it so we don't do the touch on.
+					//May set 'charge' to a number of cents.
+				}
+				else
+				{
+					//It's a new touch; we presume a touch-off at the previous target.
+					//May set 'prevcharge' to a number of cents.
+				}
+			}
+			//Now touch the card on at the new location, unless this was flagged as a touch-off.
+			//This may set 'charge' to a number of cents. If so, attempt to charge the account
+			//atomically; on failure, RETURN(sprintf("REJECT id=%d card=%d reason=NOMONEY prevcharge=%d", id, card, prevcharge))
+			//Note that it's possible to fail and still have a prevcharge.
+		}
+		//Finally, figure out what the current balance is, and return that.
+		RETURN(sprintf("ACCEPT id=%d card=%d prevcharge=%d charge=%d", id, card, prevcharge, charge))
+	}
 }
 
 //Parse and load a private key for encryption purposes
