@@ -129,11 +129,13 @@ object load_private_key(string fn)
 object load_public_key(string fn) {return decode_public_key((Stdio.read_file(fn)/" ")[1]);}
 object decode_public_key(string key)
 {
-	key=MIME.decode_base64(key);
-	//I have no idea how this rewrapping works, but it appears to. There's some
-	//signature data at the beginning of the MIME-encoded file, but we need some
-	//different signature data for parse_public_key().
-	return Standards.PKCS.RSA.parse_public_key("0\202\1\n\2\202"+key[20..]+"\2\3\1\0\1");
+	//Decoding technique provided by Henrik Grubbström (grubba) - thanks!
+	Stdio.Buffer buf = Stdio.Buffer(MIME.decode_base64(key));
+	string tag = buf->read_hstring(4);
+	if (tag != "ssh-rsa") error("Incorrect signature on public key (%O)", tag);
+	int pub = buf->read_hint(4);
+	int modulo = buf->read_hint(4);
+	return Crypto.RSA()->set_public_key(modulo, pub);
 }
 
 //Load a private key and a fileful of public keys
