@@ -292,3 +292,22 @@ in the manner described above.
 
 Zones must be defined in a totally ordered manner. Identifying them with simple
 numbers or alphabetizable strings is sufficient.
+
+
+
+1) All stations get barriers if at all possible, which enables:
+2) Absolute requirement to touch off after using trains. Failure to do so will incur a minor automatic fine which exceeds the ticket price of any regular trip.
+3) The implicit target of all railway stations is not FSS but a mythical location which is a premium touch (= the fine)
+4) All intercity travel gets validators on the vehicles, which allows easy handling of targets etc.
+5) If metro trams have validators on platforms, they can work the same way, but with a different target (probably the same premium fare, but separate to detect failure to touch off when going from one to the other)
+
+Zones currently have no geographic status.
+
+All vehicles need to transmit run numbers which are never reused per XKCD 1340. The date of touch is used to connect your autotouch to the appropriate ticket, but that's all. The run number is used to recognize touches-off.
+
+Definitions:
+* metro: within the MBD area (eg Ringwood area). Buses, sometimes trams, not trains usually. Fast - high frequency and decent travel speeds.
+* inter-urban: between MBD centers (eg express CBD to Oakleigh). Usually trains.
+* inter-city: between major cities (eg Melbourne to Swan Hill), stopping very rarely. May go inter-state. Fixed fares, no zones. All validation happens on the vehicles.
+
+Regions which cross state boundaries (eg Albury-Wodonga) will have to be assigned to one or the other for management.

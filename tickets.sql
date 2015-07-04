@@ -13,6 +13,7 @@
 -- it is automatically activated, by inserting a corresponding row into this table.
 drop table if exists active_cards cascade;
 create table active_cards (id int primary key, -- Must first exist in accounts::cards
+	touch_run int not null default 0, -- For touched-on tickets, is the stop ID of the current end-of-trip, or the magic value for railway stations. For touched-off tickets, is zero.
 	touch_target int not null default 0, -- For touched-on tickets, is the stop ID of the current end-of-trip, or the magic value for railway stations. For touched-off tickets, is zero.
 	touch_date date not null default '1900-01-01', -- Effective date of the last touch on/off (note that this may not match a classic civil date, as it's perfectly acceptable to have times of 25:00)
 	touch_vehicle varchar not null default '', -- IP address of the vehicle where this card was last touched on/off
