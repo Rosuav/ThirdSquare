@@ -293,6 +293,31 @@ in the manner described above.
 Zones must be defined in a totally ordered manner. Identifying them with simple
 numbers or alphabetizable strings is sufficient.
 
+Open questions
+==============
+
+Point-to-point fare calculation
+-------------------------------
+
+Currently, all fares are calculated on the basis of endpoints only. So long as
+all routes run relatively short distances, this is not a problem - a bus might
+go across one zone boundary, and include overlaps with several others, but no
+single trip on any bus would ever cost more than two zones. Train journeys,
+however, are often going to be longer, and may require line-based zoning. How
+should this be calculated? See above - zones have no concept of geography, so
+a vehicle that goes from zone 1|2 to zone 5|9 might have passed through any
+other zones in between. One solution might be to maintain a table of zone
+overlaps; for instance, the above would demonstrate that zones 1 and 2 overlap,
+and likewise zones 5 and 9. In order to determine the actual fare, a complete
+chain must be found. Suppose there is, somewhere in the system, a station in
+zones 2|4, and another in zones 4|9. This would indicate that the trip would be
+possible with constant overlap by progressing 1|2, 2|4, 4|9, 5|9, with the two
+ends being the actual touch locations. The system would then presume touches in
+all four locations instead of just one, and then bill accordingly; if this were
+the only trip done on a ticket, then it would be charged as a three-zone ticket
+(covering zones 2|4|9), which is thus sufficient to cover the entire zone set.
+Downside: Lots and LOTS of processing in what will be a very common case.
+Upside: Approximately perfect result.
 
 
 1) All stations get barriers if at all possible, which enables:
