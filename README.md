@@ -206,15 +206,14 @@ Date and time: The system is posited on a cycle of days, each with a known
 beginning and end. This works very nicely with a system that has a regular
 downtime (say, 2AM-4AM); it doesn't hurt if a day contains additional hours
 from midnight until some particular cut-off, just as long as it's consistent.
-The simplest way to handle this is to have all times handled in UTC, with a
-stipulated day-break (no, not the coronet); alternatively, use some civil time
-that's consistent across the entire system. (Interstate travel will be an issue
-anyway, so this doesn't make it any worse.) Problem: NightRider buses operate a
-different day cycle. If they are to be zoned as per the other tickets, they'll
-need a hack that puts them on a different day-break. Otherwise, just treat them
-the same way that SkyBus and your morning coffee are treated - a simple price
-that gets charged to your account, and does not interact in any way with ticket
-usage for the rest of the system.
+The stipulated day-break (and no, I don't mean the coronet) is handled as some
+number of hours (possibly zero) after midnight in some time zone (possibly UTC)
+and always, for all operations, treats those hours as belonging to the previous
+day. Note that touches-off are detected on the basis of their run numbers, NOT
+the date of operation; if you touch on prior to the roll-over, then touch off
+after the roll-over, it will be correctly detected. However, if you then touch
+on again, it will be deemed a new day, and will open a new ticket or check for
+longer validity on your period ticket.
 
 Note that currently, the system assumes that time increases monotonically, and
 that touches are processed in chronological order. The former can be ensured by
