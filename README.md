@@ -276,6 +276,10 @@ Locations SHOULD be identified in a service-specific way, such that bus, train,
 and tram locations in near proximity are still distinguishable. This allows for
 zone-map differences based on mode of travel, which may be important.
 
+Regions which cross state boundaries (eg Albury-Wodonga) MUST be managed by one
+state or the other for ticketing purposes. The region cannot be divided up such
+that a single journey might involve multiple governing states.
+
 Identifiers: Zones
 ==================
 
@@ -321,11 +325,3 @@ assigned a number; X-X is implicitly zero, any pair that has an overlap is one,
 and thereafter as per the algo above. Given any pair of zone maps, the cross
 product could be examined, and the lowest pair selected. This may turn out to
 give no benefit beyond the current plan.
-
-
-Definitions:
-* metro: within the MBD area (eg Ringwood area). Buses, sometimes trams, not trains usually. Fast - high frequency and decent travel speeds.
-* inter-urban: between MBD centers (eg express CBD to Oakleigh). Usually trains.
-* inter-city: between major cities (eg Melbourne to Swan Hill), stopping very rarely. May go inter-state. Fixed fares, no zones. All validation happens on the vehicles.
-
-Regions which cross state boundaries (eg Albury-Wodonga) will have to be assigned to one or the other for management.
