@@ -317,6 +317,11 @@ the only trip done on a ticket, then it would be charged as a three-zone ticket
 (covering zones 2|4|9), which is thus sufficient to cover the entire zone set.
 Downside: Lots and LOTS of processing in what will be a very common case.
 Upside: Approximately perfect result.
+Note that it may be possible to cache these. Every pair (N!) of zones would be
+assigned a number; X-X is implicitly zero, any pair that has an overlap is one,
+and thereafter as per the algo above. Given any pair of zone maps, the cross
+product could be examined, and the lowest pair selected. This may turn out to
+give no benefit beyond the current plan.
 
 
 1) All stations get barriers if at all possible, which enables:
