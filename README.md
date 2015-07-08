@@ -140,64 +140,63 @@ this be charged? The safest solution is to keep each day's travel separate. For
 the regular travellers who wish to save money by using longer-duration tickets,
 the overhead of explicitly purchasing them will be easily justified.
 
+Touch-Off Detection
+===================
+
 Conceptually, your ticket will be touched off automatically when the vehicle
 you were on reaches its destination. Practically, however, this happens only on
 the next touch or other pinging of the card (eg if you request a balance, the
 system MAY at that time bill you for a previous trip). This ensures that your
 ticket is still in its "touched on" state any time an AO checks it.
 
-Each touch operation sends two signature values: where the vehicle is now, and
-where it will be at end-of-trip. The end marker and vehicle identifier are
+Each touch operation sends three signature values: where the vehicle is now,
+where it will be at end-of-trip, and its run number. These three integers are
 stored as the ticket's touched-on status. If the next touch is on the same
-vehicle and has the same end-of-trip marker, it is a touch-off; otherwise it is
+vehicle and has the same run number, it is a touch-off; otherwise it is deemed
 a touch-on, and an implicit touch-off is performed at the end-of-trip location.
 Edge case: As a vehicle approaches the end-of-trip location (usually a route
-terminus), it MUST instantly update its end-of-trip to be the *next* end (which
-may be the terminus at the far end, a depot, or "NULL" meaning that touches-on
-are to be rejected (vehicle not taking passengers)); so long as its location
-matches the ticket's EOT marker, it is a touch off.
+terminus), it MUST instantly update its end-of-trip and run number to be the
+*next* end and run (which may be the terminus at the far end, a depot, or
+0 meaning that touches-on are to be rejected (vehicle not taking passengers));
+until it departs that location, all touches MUST be sent with an additional
+"matching run number", the previous run identifier. A touched-on ticket that
+used the previous run number is counted as a touch off.
 Additional edge case: Railway stations don't have a concept of vehicles or trip
-end locations. Defining the entire rail network as a single vehicle with a
-constant end location of FSS gives us a reasonably plausible average, with the
-system broadly working (as long as you touch off at any station, it'll be seen
-as a touch off), but with the following corner cases:
-1. People will think of down journeys as ending at the down terminus, and up
-   journeys as ending at the up terminus. This can produce unexpected charges
-   when someone boards at Dandenong, hops off at Officer, and expects to be
-   auto-touched-off at Pakenham; or boards a Lilygrave shuttle at FTG, gets
-   off at Ringwood, and expects to be auto-touched-off there. In both cases,
-   the implicit touch off will happen at FSS, which will most likely add an
-   additional zone to the charge. Solution: Make sure you always touch off for
-   the lowest fare, same as we've always said.
-2. Journeys running into the city and out again will be charged for their two
-   end points and nothing in between. This makes the rail network into a magic
-   orbital route - you can ride from Pakenham to Belgrave and be charged as if
-   you quantum-tunneled from one to the other. In this case, though, I expect
-   that there will normally be an orbital bus route that does the same job and
-   quicker, so this will be significant only in a very VERY few cases, and
-   it'll be the slow option anyway. Slightly less bizarre is the through-city
-   trip - board at Pakenham, ride all the way in (maybe change trains in the
-   Loop, but don't touch off/on), and then all the way out to Broadmeadows.
-   Again, your fare will be calculated as if you quantum tunneled from one to
-   the other. There's no viable way to recognize the actual trip taken, so we
-   grant you a cheaper fare as an apology for the slowness of such travel.
-   (Note that the same assumption applies to other trips, too, but the plan is
-   for most vehicles to not cross myriad zone boundaries; the 903 needs to be
-   reworked to make it marginally sane anyway. In those cases, we could have a
-   system of "passed-through zones", but I would much prefer to minimize their
-   incidence rather than implement their charges.)
+end locations. All stations are therefore given a common end location, and the
+back-end knows the ID of this location, and will ignore the vehicle IP for the
+purposes of touch-off recognition. (The IP is still used for public key lookup,
+but if both touches use the same end location, it is a touch-off.) In order to
+make this make sense, travellers will be told that they MUST touch off when
+using the trains, else they will be charged an automatic fine (which would be
+set to exceed the normal travel cost of any regular train trip). This fine can
+be charged by simply making the end location a premium location, incurring an
+immediate debit whenever it is auto-touched. To make this less disconcerting
+for passengers, as many railway stations as possible should be equipped with
+barriers, as anyone who physically jumps over barriers is generally going to be
+aware that s/he is fare evading; where this is impractical, signage has to
+suffice, and as we all know, signage is seldom noticed.
+(Parenthesis: Train journeys can easily cross many zones, especially since
+changing services at Flinner doesn't involve any touches. This makes a problem
+for point-to-point fare calculation. See below.)
+(Parenthesis: Train journeys can easily consume many hours, especially since
+changing services doesn't involve any touches. This makes a problem for the
+policy that touches-off do not affect ticket duration. This may need to be
+special-cased; railway station touches may always affect duration. Don't like.)
+
 This requires that a vehicle know in advance what its next trip will be, or
 else to reject touches-on until it knows that. Is that a problem? TODO: Ask.
-Additional corner case: If you ride a vehicle toward one EOT, then get off and
-don't touch off, then wait for it to complete *one entire cycle* and return to
-you (going in the same direction as when you'd departed), it would be seen as
-a touch off; the target and vehicle are the same, so you clearly are touching
-off. To prevent this, we could add a fourth value to the touch tuple: a unique
-run number, which MUST increment any time the same vehicle makes a run to the
-same destination on the same day. (It MAY increment at other times too, but
-it MUST NOT ever repeat a (vehicle, date, target) tuple.) But the likelihood
-that this would ever actually matter is extremely low, and I'm leaving this as
-a "note to self" without any implementation requirement.
+Vehicles must also have run numbers, which are never reused; XKCD 1340 style
+recommended, but not enforced. Since run numbers are per-vehicle (with the
+exception of railway stations, which don't use them at all), it doesn't hurt
+if there are collisions across vehicle types (eg if tram run numbers use a
+different scheme from the one bus run numbers use), as long as the tuple of
+(vehicle, run) is used once only. Once that vehicle begins a new run, it MUST
+NOT re-enter the previous run.
+
+Note that if multiple service modes (eg metro trams and trains) have validators
+on platforms, they can work the same way, but with different targets (probably
+the same premium fare, but separate to detect failure to touch off when going
+from one to the other).
 
 Timestamping
 ============
@@ -323,16 +322,6 @@ and thereafter as per the algo above. Given any pair of zone maps, the cross
 product could be examined, and the lowest pair selected. This may turn out to
 give no benefit beyond the current plan.
 
-
-1) All stations get barriers if at all possible, which enables:
-2) Absolute requirement to touch off after using trains. Failure to do so will incur a minor automatic fine which exceeds the ticket price of any regular trip.
-3) The implicit target of all railway stations is not FSS but a mythical location which is a premium touch (= the fine)
-4) All intercity travel gets validators on the vehicles, which allows easy handling of targets etc.
-5) If metro trams have validators on platforms, they can work the same way, but with a different target (probably the same premium fare, but separate to detect failure to touch off when going from one to the other)
-
-Zones currently have no geographic status.
-
-All vehicles need to transmit run numbers which are never reused per XKCD 1340. The date of touch is used to connect your autotouch to the appropriate ticket, but that's all. The run number is used to recognize touches-off.
 
 Definitions:
 * metro: within the MBD area (eg Ringwood area). Buses, sometimes trams, not trains usually. Fast - high frequency and decent travel speeds.
