@@ -228,6 +228,14 @@ at railway stations needs to be excellent; it may also be important to hammer
 the retry loop, possibly with no gap exceeding 15 seconds. None of this can
 entirely prevent the problem, but it will make it vanishingly unlikely.
 
+NOTE: In time zones using Daylight Saving Time, it is possible to experience
+times more than once; in many locations, this occurs between 2AM and 3AM, with
+the times from 02:00:00 to 02:59:59.999 occurring twice, but the instant of
+03:00:00 occurs only once. Avoid setting the day-break inside this duplicated
+period, as it will result in a day being potentially restarted. Using 3AM as
+the day-break would work with this scenario, but 2AM would not. Check your DST
+rules before selecting a cut-off point.
+
 Identifiers: Vehicles
 =====================
 
