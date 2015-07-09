@@ -333,3 +333,48 @@ assigned a number; X-X is implicitly zero, any pair that has an overlap is one,
 and thereafter as per the algo above. Given any pair of zone maps, the cross
 product could be examined, and the lowest pair selected. This may turn out to
 give no benefit beyond the current plan.
+
+Ticket durations and touches-off
+--------------------------------
+
+Whenever you touch on, the current time is checked for validity, and if you do
+not have an active ticket, one will be created (or a previous one extended) to
+cover 'now'. What happens when you touch off explicitly, and what happens when
+your ticket is automatically touched off for you?
+
+If explicit touches extend tickets, then automated touches MUST also extend.
+Otherwise, failing to touch off will frequently result in a higher fare than
+touching off, which violates a fundamental principle of our Association.
+
+If touches extend tickets, there may be extreme weirdnesses across a day-break.
+Does your existing ticket get a "loading" for its extra hours? Is a new ticket
+opened, and if so, for what zones? Or is there a special case, that touching
+off after day-break doesn't extend your ticket? This would be an extremely odd
+corner case, and maybe it's rare enough that people shouldn't need to worry
+about it, but it's still hard to explain. The Zen of Python advises against
+this proposal (lines 8 and 17), and while we're not governed by it, it's still
+worth noting.
+
+Also, if touches extend tickets, the deemed time of the automated touch becomes
+significant. This may mean that people complain very loudly when their ticket
+gets unexpectedly expanded to a daily (roughly doubling their fare), and may
+have other unintended consequences; it also worsens the day-break problem, as
+any run which spans the boundary will trigger this for failed-touches-off.
+
+Conversely, if touches do NOT extend tickets, there is an incentive to cheat on
+rail journeys. Suppose a commuter lives on one side of the city and works on
+the other, in each case either walking to/from the station or using a bicycle.
+If he travels to work in the morning and home again in the evening, he ought to
+touch four times; conceptually, he should be charged for a daily ticket for all
+zones of his journey (cf "Point-to-point" above, but certainly a daily ticket),
+as he has travelled for (say) 90 minutes in the AMs and 90 more in the PMs. But
+if he consistently fails to touch off, the system will detect only two touches
+per day, one at his home station in the morning, and one at his work station in
+the afternoon, and will treat the latter as a touch-off. Technically he is fare
+evading by failing to touch off, but the reward is a half-price ticket, which
+is extremely tempting, and the system is unable to detect this (without some
+kind of silly boundary condition, like assuming that no train journey lasts
+more than X hours - which would have its own stupid cases).
+
+A messy system in which railway station touches always affect times but others
+do not would further complicate matters, and I'm not sure it fixes the problem.
