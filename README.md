@@ -326,14 +326,42 @@ ends being the actual touch locations. The system would then presume touches in
 all four locations instead of just one, and then bill accordingly; if this were
 the only trip done on a ticket, then it would be charged as a three-zone ticket
 (covering zones 2|4|9), which is thus sufficient to cover the entire zone set.
+
 Downside: Lots and LOTS of processing in what will be a very common case.
+
 Upside: Approximately perfect result.
+
 Note that it may be possible to cache these. Every pair (N!) of zones would be
 assigned a number; X-X is implicitly zero, any pair that has an overlap is one,
 and thereafter as per the algo above. Given any pair of zone maps, the cross
 product could be examined, and the lowest pair selected. This may turn out to
 give no benefit beyond the current plan. (Think Erdős numbers or graph
 distance.)
+
+To build the cache:
+	zone-pairs = mapping
+	For zone-map in locations:
+		For zone in zone-map:
+			If zone not in zone-pairs:
+				zone-pairs[zone] = mapping
+				zone-pairs[zone][zone] = empty # loopback
+			For other-zone in zone-map: # double nested
+				zone-pairs[zone][other-zone] = empty # adjacent
+				For destination in zone-pairs[other-zone]:
+					path = other-zone + zone-pairs[other-zone][destination]
+					zone-pairs[zone][destination] = path if shorter than existing value
+
+This is linear in the number of locations, but need be done only once (until
+the locations get changed; could be done once on bootup or signal). The end
+result is a mapping from any zone to any other reachable zone, containing the
+set of all intermediate locations in the shortest path from one to the other;
+this mapping, obviously, contains N² entries, where N is the number of zones in
+any geographically-cohesive area. (Completely disparate areas do not interact;
+it is assumed that no trip can touch on in one area and touch off in another.)
+Lookups into this table are performed in constant time.
+
+This cache assumes that the full zone map for intermediate locations is not
+significant. It may be necessary to do this in full.
 
 Ticket durations and touches-off
 --------------------------------
