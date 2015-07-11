@@ -339,6 +339,7 @@ give no benefit beyond the current plan. (Think Erdős numbers or graph
 distance.)
 
 To build the cache:
+
     zone-pairs = mapping
     For unique zone-map in locations:
         For zone in zone-map:
