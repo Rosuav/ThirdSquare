@@ -343,7 +343,7 @@ cover 'now'. What happens when you touch off explicitly, and what happens when
 your ticket is automatically touched off for you?
 
 If explicit touches extend tickets, then automated touches MUST also extend.
-Otherwise, failing to touch off will frequently result in a higher fare than
+Otherwise, failing to touch off will frequently result in a lower fare than
 touching off, which violates a fundamental principle of our Association.
 
 If touches extend tickets, there may be extreme weirdnesses across a day-break.
