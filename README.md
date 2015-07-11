@@ -346,11 +346,12 @@ To build the cache:
             If zone not in zone-pairs:
                 zone-pairs[zone] = mapping
                 zone-pairs[zone][zone] = empty # loopback
-            For other-zone in zone-map: # double nested
-                zone-pairs[zone][other-zone] = empty # adjacent
+            For other-zone in zone-map except zone: # double nested
+                zone-pairs[zone][other-zone] = zone-map
                 For destination in zone-pairs[other-zone]:
                     path = zone-map + zone-pairs[other-zone][destination]
                     zone-pairs[zone][destination] = path if shorter than existing value
+		    Ditto zone-pairs[destination][zone]
 
 This is linear in the number of locations, but need be done only once (until
 the locations get changed; could be done once on bootup or signal). The end
@@ -365,7 +366,25 @@ To use this cache, take the zone-maps for the two endpoints, and find the pair
 (origin zone, destination zone) with the shortest path. If this path is empty
 (which includes the trivial case of a common zone), no additional touches need
 to be simulated; otherwise, create touches for each of the zone-pairs in the
-path.
+path. The above example locations would produce the following table (trivial
+entries and reverse paths omitted for brevity):
+
+    (1,2) -> 1|2
+    (2,4) -> 2|4
+    (1,4) -> 1|2, 2|4
+    (5,9) -> 5|9
+    (4,9) -> 4|9
+    (4,5) -> 4|9, 5|9
+    (1,9) .......
+
+Oh. Turns out I forgot something in the above algorithm: that a new node, when
+discovered, may affect path lengths not involving any of its zones. In fact,
+the search can be modeled with zones as vertices and zone-maps representing one
+or more edges connecting them, each with weight one... which reduces this to
+the good ol' Travelling Salesman Problem. Unless some massive optimization can
+be found, this is a fundamentally hard problem. That said, though, a TSP brute
+force algorithm can probably handle the dozen or so nodes we'll be using here,
+so it might turn out to be "good enough".
 
 Ticket durations and touches-off
 --------------------------------
