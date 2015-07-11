@@ -340,7 +340,7 @@ distance.)
 
 To build the cache:
 	zone-pairs = mapping
-	For zone-map in locations:
+	For unique zone-map in locations:
 		For zone in zone-map:
 			If zone not in zone-pairs:
 				zone-pairs[zone] = mapping
