@@ -348,7 +348,7 @@ To build the cache:
 			For other-zone in zone-map: # double nested
 				zone-pairs[zone][other-zone] = empty # adjacent
 				For destination in zone-pairs[other-zone]:
-					path = other-zone + zone-pairs[other-zone][destination]
+					path = zone-map + zone-pairs[other-zone][destination]
 					zone-pairs[zone][destination] = path if shorter than existing value
 
 This is linear in the number of locations, but need be done only once (until
@@ -360,8 +360,11 @@ any geographically-cohesive area. (Completely disparate areas do not interact;
 it is assumed that no trip can touch on in one area and touch off in another.)
 Lookups into this table are performed in constant time.
 
-This cache assumes that the full zone map for intermediate locations is not
-significant. It may be necessary to do this in full.
+To use this cache, take the zone-maps for the two endpoints, and find the pair
+(origin zone, destination zone) with the shortest path. If this path is empty
+(which includes the trivial case of a common zone), no additional touches need
+to be simulated; otherwise, create touches for each of the zone-pairs in the
+path.
 
 Ticket durations and touches-off
 --------------------------------
