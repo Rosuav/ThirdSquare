@@ -386,3 +386,10 @@ do not would further complicate matters, and I'm not sure it fixes the problem.
 Current inclination: Touches-off should not extend tickets. Fare evasion is
 fare evasion, and while it is be nice to build evasion discouragement into the
 code, it is not important enough to justify excessive complexity.
+
+Evening ticket duration
+-----------------------
+
+Dating back at least as far as Metcard, two-hourly tickets opened after 6PM
+have been valid until the end of the day. This is simple enough to do; should
+it be done? With round-the-clock services, is 6PM still a significant boundary?
