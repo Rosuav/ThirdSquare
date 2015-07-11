@@ -360,6 +360,10 @@ significant. This may mean that people complain very loudly when their ticket
 gets unexpectedly expanded to a daily (roughly doubling their fare), and may
 have other unintended consequences; it also worsens the day-break problem, as
 any run which spans the boundary will trigger this for failed-touches-off.
+Consistency could be achieved by deeming that ALL automated touches occur at
+notional end-of-day, which would mean that failing to touch off would always
+result in a daily fare; this would likely cause resentment in other areas, and
+doesn't improve the situation significantly, and so is not worth doing.
 
 Conversely, if touches do NOT extend tickets, there is an incentive to cheat on
 rail journeys. Suppose a commuter lives on one side of the city and works on
