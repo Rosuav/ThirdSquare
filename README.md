@@ -332,7 +332,8 @@ Note that it may be possible to cache these. Every pair (N!) of zones would be
 assigned a number; X-X is implicitly zero, any pair that has an overlap is one,
 and thereafter as per the algo above. Given any pair of zone maps, the cross
 product could be examined, and the lowest pair selected. This may turn out to
-give no benefit beyond the current plan.
+give no benefit beyond the current plan. (Think Erdős numbers or graph
+distance.)
 
 Ticket durations and touches-off
 --------------------------------
