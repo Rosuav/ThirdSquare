@@ -382,3 +382,7 @@ more than X hours - which would have its own stupid cases).
 
 A messy system in which railway station touches always affect times but others
 do not would further complicate matters, and I'm not sure it fixes the problem.
+
+Current inclination: Touches-off should not extend tickets. Fare evasion is
+fare evasion, and while it is be nice to build evasion discouragement into the
+code, it is not important enough to justify excessive complexity.
