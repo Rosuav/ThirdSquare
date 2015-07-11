@@ -339,17 +339,17 @@ give no benefit beyond the current plan. (Think Erdős numbers or graph
 distance.)
 
 To build the cache:
-	zone-pairs = mapping
-	For unique zone-map in locations:
-		For zone in zone-map:
-			If zone not in zone-pairs:
-				zone-pairs[zone] = mapping
-				zone-pairs[zone][zone] = empty # loopback
-			For other-zone in zone-map: # double nested
-				zone-pairs[zone][other-zone] = empty # adjacent
-				For destination in zone-pairs[other-zone]:
-					path = zone-map + zone-pairs[other-zone][destination]
-					zone-pairs[zone][destination] = path if shorter than existing value
+    zone-pairs = mapping
+    For unique zone-map in locations:
+        For zone in zone-map:
+            If zone not in zone-pairs:
+                zone-pairs[zone] = mapping
+                zone-pairs[zone][zone] = empty # loopback
+            For other-zone in zone-map: # double nested
+                zone-pairs[zone][other-zone] = empty # adjacent
+                For destination in zone-pairs[other-zone]:
+                    path = zone-map + zone-pairs[other-zone][destination]
+                    zone-pairs[zone][destination] = path if shorter than existing value
 
 This is linear in the number of locations, but need be done only once (until
 the locations get changed; could be done once on bootup or signal). The end
