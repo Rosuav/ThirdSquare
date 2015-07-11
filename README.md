@@ -386,6 +386,9 @@ be found, this is a fundamentally hard problem. That said, though, a TSP brute
 force algorithm can probably handle the dozen or so nodes we'll be using here,
 so it might turn out to be "good enough".
 
+No, actually, this isn't TSP. It's a point-to-point distance problem. But I'm
+still not sure how to implement it less naively than massive recursion.
+
 Ticket durations and touches-off
 --------------------------------
 
