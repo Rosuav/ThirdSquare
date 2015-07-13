@@ -286,7 +286,9 @@ zone-map differences based on mode of travel, which may be important.
 
 Regions which cross state boundaries (eg Albury-Wodonga) MUST be managed by one
 state or the other for ticketing purposes. The region cannot be divided up such
-that a single journey might involve multiple governing states.
+that a single journey might involve multiple governing states. If a vehicle is
+able to operate in two different states, it MUST know on startup which state it
+is servicing this time. It may be simpler to avoid this scenario altogether.
 
 Identifiers: Zones
 ==================
