@@ -391,6 +391,25 @@ so it might turn out to be "good enough".
 No, actually, this isn't TSP. It's a point-to-point distance problem. But I'm
 still not sure how to implement it less naively than massive recursion.
 
+Thanks to some guidance from Ryan Lynch of Thinkful, I've worked out a new
+algorithm, which appears to be functional, and also guarantees termination. The
+search begins by enumerating all zone-pairs (if a location is in three or more
+zones, it represents multiple zone pairs; the system gives preference to those
+locations with less zones in them, and so will tend to find pure pair locations
+rather than actually using 1|3|5 as zone (1,5) adjacency), and then propagates
+a "wave front" from each zone. As the wave front advances, it absorbs all zones
+which overlap any zone currently in the wave front and which aren't already
+behind the wave. Eventually, all zones are either behind the wave (and thus
+have their distances calculated) or inaccessible (which means a trip should be
+rejected).
+
+The initial step of finding location pairs is linear in the number of locations
+on record, or possibly in the number of unique zone maps. Wavefront propagation
+is done once for each zone, and the total effort is capped at one advancement
+per zone (divided among a number of iterations), and is thus O(N*N) in zones, I
+think. In any case, it appears to be reasonably quick on moderate numbers of
+zones and locations, but has yet to be tested on thousands of locations.
+
 * There will be 20 zones in the Melbourne region. *
 
 Ticket durations and touches-off
