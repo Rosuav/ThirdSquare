@@ -391,6 +391,8 @@ so it might turn out to be "good enough".
 No, actually, this isn't TSP. It's a point-to-point distance problem. But I'm
 still not sure how to implement it less naively than massive recursion.
 
+* There will be 20 zones in the Melbourne region. *
+
 Ticket durations and touches-off
 --------------------------------
 
@@ -450,3 +452,5 @@ Evening ticket duration
 Dating back at least as far as Metcard, two-hourly tickets opened after 6PM
 have been valid until the end of the day. This is simple enough to do; should
 it be done? With round-the-clock services, is 6PM still a significant boundary?
+
+* Skip it. Night frequency is now good enough that it's really just two more hours. *
