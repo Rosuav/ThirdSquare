@@ -158,6 +158,62 @@ void create()
 	//Invoke as "pike hogan thirdsquare --clients" to list valid clients.
 	if (G->options->clients) exit(0,"Valid clients:\n%{\t%s\n%}%d clients authenticated.\n",sort(indices(public_keys)),sizeof(public_keys));
 
+	if (G->options->distances)
+	{
+		//Test: Calculate point-to-point distances
+		//Ultimately this will be done as a regular thing, and this dump
+		//will become a simple check for verification purposes.
+
+		//zones[x][y] is the fewest-bits link from zone x to zone y.
+		//Usually this will simply be "x|y".
+		mapping(int:mapping(int:string)) zones=([]);
+
+		//routes[x][y] is the fewest-steps link from zone x to zone y.
+		//Distinct from the above in that zones[x][y] does not exist
+		//unless zones x and y are adjacent, but routes[x][y] can be
+		//a chain of adjacencies. In the simple case, where zones[x][y]
+		//exists, routes[x][y] will be equal to it; otherwise, it will
+		//be a space-delimited chain.
+		mapping(int:mapping(int:string)) routes=([]);
+
+		//Ultimately this will come from the database eg
+		//"select distinct zone_map from locations"
+		foreach (Stdio.read_file("stations")/"\n",string zonemap) if (zonemap!="")
+		{
+			array parts = array_sscanf(zonemap, "%d|"*20); //Assume that no one location is in more than 20 zones (!)
+			foreach (parts,int x) foreach (parts,int y) if (x!=y)
+			{
+				if (!zones[x]) zones[x]=([]);
+				if (!zones[x][y] || sizeof(zones[x][y])>sizeof(zonemap)) zones[x][y]=zonemap;
+			}
+		}
+
+		//Okay. Now to build up the full map.
+		//For each initial zone, add destinations for all its links.
+		//For each destination, add destinations for all its links, if not already present.
+		foreach (zones;int initial;mapping(int:string) links)
+		{
+			mapping(int:string) dest = routes[initial] = links+([]);
+			array(int) wavefront = indices(dest);
+			dest[initial]=""; //Not included in the wave front.
+			while (sizeof(wavefront))
+			{
+				array(int) newfront = ({ });
+				foreach (wavefront, int zone)
+				{
+					foreach (zones[zone];int loc;string link) if (!dest[loc])
+					{
+						dest[loc] = dest[zone] + " --> " + link;
+						newfront += ({loc});
+					}
+				}
+				wavefront=newfront;
+			}
+		}
+		write("Zone paths: %O\n",routes);
+		exit(0);
+	}
+
 	//Beyond proof-of-concept, these database connection strings would of course be tightly secured.
 	//Note that it may be possible to use the same database for these, but it is NOT possible to use
 	//the same database connection (you can't simply assign accountsdb=ticketsdb), as they MUST be
