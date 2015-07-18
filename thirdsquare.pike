@@ -166,7 +166,7 @@ void create()
 
 		//zones[x][y] is the fewest-bits link from zone x to zone y.
 		//Usually this will simply be "x|y".
-		mapping(int:mapping(int:string)) zones=([]);
+		mapping(string:mapping(string:string)) zones=([]);
 
 		//routes[x][y] is the fewest-steps link from zone x to zone y.
 		//Distinct from the above in that zones[x][y] does not exist
@@ -174,14 +174,14 @@ void create()
 		//a chain of adjacencies. In the simple case, where zones[x][y]
 		//exists, routes[x][y] will be equal to it; otherwise, it will
 		//be a space-delimited chain.
-		mapping(int:mapping(int:string)) routes=([]);
+		mapping(string:mapping(string:string)) routes=([]);
 
 		//Ultimately this will come from the database eg
 		//"select distinct zone_map from locations"
 		foreach (Stdio.read_file("stations")/"\n",string zonemap) if (zonemap!="")
 		{
-			array parts = array_sscanf(zonemap, "%d|"*20); //Assume that no one location is in more than 20 zones (!)
-			foreach (parts,int x) foreach (parts,int y) if (x!=y)
+			array parts = zonemap/" ";
+			foreach (parts,string x) foreach (parts,string y) if (x!=y)
 			{
 				if (!zones[x]) zones[x]=([]);
 				if (!zones[x][y] || sizeof(zones[x][y])>sizeof(zonemap)) zones[x][y]=zonemap;
@@ -191,17 +191,17 @@ void create()
 		//Okay. Now to build up the full map.
 		//For each initial zone, add destinations for all its links.
 		//For each destination, add destinations for all its links, if not already present.
-		foreach (zones;int initial;mapping(int:string) links)
+		foreach (zones;string initial;mapping(string:string) links)
 		{
-			mapping(int:string) dest = routes[initial] = links+([]);
-			array(int) wavefront = indices(dest);
+			mapping(string:string) dest = routes[initial] = links+([]);
+			array(string) wavefront = indices(dest);
 			dest[initial]=""; //Not included in the wave front.
 			while (sizeof(wavefront))
 			{
-				array(int) newfront = ({ });
-				foreach (wavefront, int zone)
+				array(string) newfront = ({ });
+				foreach (wavefront, string zone)
 				{
-					foreach (zones[zone];int loc;string link) if (!dest[loc])
+					foreach (zones[zone];string loc;string link) if (!dest[loc])
 					{
 						dest[loc] = dest[zone] + " --> " + link;
 						newfront += ({loc});
@@ -210,6 +210,7 @@ void create()
 				wavefront=newfront;
 			}
 		}
+		write("Zone adjacencies: %O\n",zones);
 		write("Zone paths: %O\n",routes);
 		exit(0);
 	}
