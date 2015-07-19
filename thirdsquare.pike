@@ -219,17 +219,16 @@ void create()
 		//Ultimately this will be done as a regular thing, and this dump
 		//will become a simple check for verification purposes.
 
-		//zones[x][y] is the fewest-bits link from zone x to zone y.
-		//Usually this will simply be "x|y".
-		mapping(string:mapping(string:string)) zones=([]);
+		//zones[x][y] exists if there is adjacency between x and y.
+		mapping(string:multiset(string)) zones=([]);
 
 		//routes[x][y] is the fewest-steps link from zone x to zone y.
-		//Distinct from the above in that zones[x][y] does not exist
-		//unless zones x and y are adjacent, but routes[x][y] can be
-		//a chain of adjacencies. In the simple case, where zones[x][y]
-		//exists, routes[x][y] will be equal to it; otherwise, it will
-		//be a space-delimited chain.
-		mapping(string:mapping(string:string)) routes=([]);
+		//If x==y || zones[x][y], routes[x][y]==({}); otherwise, it is an
+		//array of zone identifiers through which one must go. Note that
+		//the exact chain is unreliable; there may be multiple chains that
+		//can get you from x to y, but there will be none shorter than
+		//this one.
+		mapping(string:mapping(string:array(string))) routes=([]);
 
 		//Ultimately this will come from the database eg
 		//"select distinct zone_map from locations"
@@ -238,27 +237,27 @@ void create()
 			array parts = zonemap/" ";
 			foreach (parts,string x) foreach (parts,string y) if (x!=y)
 			{
-				if (!zones[x]) zones[x]=([]);
-				if (!zones[x][y] || sizeof(zones[x][y])>sizeof(zonemap)) zones[x][y]=zonemap;
+				if (!zones[x]) zones[x]=(<>);
+				zones[x][y]=1;
 			}
 		}
 
 		//Okay. Now to build up the full map.
 		//For each initial zone, add destinations for all its links.
 		//For each destination, add destinations for all its links, if not already present.
-		foreach (zones;string initial;mapping(string:string) links)
+		foreach (zones;string initial;multiset(string) links)
 		{
-			mapping(string:string) dest = routes[initial] = links+([]);
+			mapping(string:array(string)) dest = routes[initial] = mkmapping((array)links,({({ })})*sizeof(links));
 			array(string) wavefront = indices(dest);
-			dest[initial]=""; //Not included in the wave front.
+			dest[initial]=({ }); //Not included in the wave front.
 			while (sizeof(wavefront))
 			{
 				array(string) newfront = ({ });
 				foreach (wavefront, string zone)
 				{
-					foreach (zones[zone];string loc;string link) if (!dest[loc])
+					foreach (zones[zone];string loc;) if (!dest[loc])
 					{
-						dest[loc] = dest[zone] + " --> " + link;
+						dest[loc] = dest[zone] + ({zone});
 						newfront += ({loc});
 					}
 				}
@@ -269,14 +268,14 @@ void create()
 		write("Zone paths: %O\n",routes);
 		foreach (routes;string initial;mapping destinations)
 		{
-			foreach (destinations;string dest;string path) if (has_value(path," --> ") && dest>initial)
+			foreach (destinations;string dest;array(string) path) if (sizeof(path) && dest>initial)
 			{
-				array forward=zoneset(({initial,dest})+path/" --> ");
-				array reverse=zoneset(({initial,dest})+routes[dest][initial]/" --> ");
-				if (forward!=reverse)
+				array forward=zoneset(({initial,dest})+path);
+				array reverse=zoneset(({initial,dest})+routes[dest][initial]);
+				if (!equal(forward,reverse))
 					write("%s:%s = %s = %d (%s)\n%s:%s = %s = %d (%s)\n",
-						initial,dest,path,sizeof(forward),forward*", ",
-						dest,initial,routes[dest][initial],sizeof(reverse),reverse*", ");
+						initial,dest,path*" ",sizeof(forward),forward*", ",
+						dest,initial,routes[dest][initial]*" ",sizeof(reverse),reverse*", ");
 			}
 		}
 		exit(0);
