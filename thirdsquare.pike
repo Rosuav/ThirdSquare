@@ -271,7 +271,12 @@ void create()
 		{
 			foreach (destinations;string dest;string path) if (has_value(path," --> ") && dest>initial)
 			{
-				write("%s:%s = %s\n%s:%s = %s\n",initial,dest,path,dest,initial,routes[dest][initial]);
+				array forward=zoneset(({initial,dest})+path/" --> ");
+				array reverse=zoneset(({initial,dest})+routes[dest][initial]/" --> ");
+				if (forward!=reverse)
+					write("%s:%s = %s = %d (%s)\n%s:%s = %s = %d (%s)\n",
+						initial,dest,path,sizeof(forward),forward*", ",
+						dest,initial,routes[dest][initial],sizeof(reverse),reverse*", ");
 			}
 		}
 		exit(0);
@@ -284,6 +289,7 @@ void create()
 			({"1 2","2 3 4","1 2","1 3"}),
 			({"1 2","1 3","1 4","1 5","1 6"}),
 			({"1 9","2 9","3 9","4 9","5 9"}),
+			({"5","6","2 5","2 6"}),
 		}),array(string) touches)
 		{
 			array zones=zoneset(touches);
