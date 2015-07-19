@@ -247,9 +247,8 @@ void create()
 		//For each destination, add destinations for all its links, if not already present.
 		foreach (zones;string initial;multiset(string) links)
 		{
-			mapping(string:array(string)) dest = routes[initial] = mkmapping((array)links,({({ })})*sizeof(links));
-			array(string) wavefront = indices(dest);
-			dest[initial]=({ }); //Not included in the wave front.
+			mapping(string:array(string)) dest = routes[initial] = ([initial: ({initial})]);
+			array(string) wavefront = ({initial});
 			while (sizeof(wavefront))
 			{
 				array(string) newfront = ({ });
@@ -257,7 +256,7 @@ void create()
 				{
 					foreach (zones[zone];string loc;) if (!dest[loc])
 					{
-						dest[loc] = dest[zone] + ({zone});
+						dest[loc] = dest[zone] + ({loc});
 						newfront += ({loc});
 					}
 				}
