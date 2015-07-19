@@ -414,6 +414,26 @@ per zone (divided among a number of iterations), and is thus O(N*N) in zones, I
 think. In any case, it appears to be reasonably quick on moderate numbers of
 zones and locations, but has yet to be tested on thousands of locations.
 
+Note that it's possible for a return journey to use a different zone map from
+the corresponding outward journey, due to the way the pathing is calculated. It
+is also very much possible for a path to include zones you haven't used, when
+you could have travelled from X to Y through only zones you have already used.
+The only way to perfectly solve this would be to redo the path-find every time,
+giving previously-used zones a cost of 0 and unused zones a cost of 1, but this
+would require knowing which other zones have been used. In fact, this would be
+virtually impossible to do efficiently, as it would require complete analysis
+of the possible zones; effectively, we'd have to try 2**20 possible zone sets
+for the day (starting with the twenty single-zone sets, then the 20*19 pairs,
+then the 20*19*18 triples, etc), and see if there is a path that doesn't go
+outside that set. Instead, we simplify; there will be a canonical path for any
+pair of zones (easiest solution: always calculate from lower zone to higher),
+and you are deemed to have taken that path. This is unlikely ever to affect a
+bus or tram route, as they won't frequently be used across many zones; any trip
+from 1|2 to 2|3 will obviously attract no path zones, and if there's a known
+adjacency (eg 1|4 to 2|3 with the above 1|2 existing in the system), then also
+no path zones need be added. It's only when a single trip would cost three or
+more zones that pathing really comes into it.
+
 * There will be 20 zones in the Melbourne region. *
 
 Ticket durations and touches-off
