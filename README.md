@@ -436,6 +436,59 @@ more zones that pathing really comes into it.
 
 * There will be 20 zones in the Melbourne region. *
 
+Oh great. Just awesome. Turns out that pathing interacts VERY badly with two
+other situations: duration tickets, and additional trips. The simplest and
+safest way to calculate a single rail journey is "crystal pathing" - figure out
+a path that will get you from X to Y, crystallize it into a set of zones that
+you are presumed to have traversed (including the endpoints; the touches would
+be recorded as all individual zones), and charge you for that many zones. Easy.
+But how can you buy a duration ticket that covers the right zones? At any time,
+a new location could open up, with a new zone map, which will affect the path
+calculation. (It might reduce the number of zones you go through, or it might
+not.) You would then start being charged for a bunch of zones that aren't on
+your ticket. Also, any additional trips taken the same day (a VERY common
+occurrence, naturally!) could affect the optimal calculation. Consider the
+following touch sequence:
+
+On in zone 1, off in zone 1|2. On in 1|2, off in 2|3. On in 2|3, off in 3.
+
+What route did this person follow? What zones should be charged for? There are
+two possibilities, exemplified thusly.
+
+Begin travel deep inside zone 1, and ride eastward toward the zone 2 border.
+Then, change services, and ride southward, **skirting** zone 2, and crossing
+into zone 3. Finally, ride westward, deep into zone 3. Or...
+
+Begin travel deep inside zone 1, and ride eastward to just into zone 2's area.
+Then, change services, still travelling east, **traversing** zone 2 from end
+to end, and disembarking near the zone 3 border. Finally, ride a further east,
+deep into zone 3.
+
+These two scenarios can be distinguished, in theory, by the presence or absence
+of a zone 1|3 location. If one exists, skirting is possible, and zone 2 should
+not be billed for; otherwise, it must have been traversal, and zone 2 must be
+billed for (making this a three-zone ticket). But now consider a somewhat less
+simplistic scenario, in which several of the locations have other zones added
+to their zone maps, and perhaps the return journey uses slightly different
+locations with different zone maps. How do you go about calculating the true
+zone usage?
+
+One solution would be to require that all bus and tram journeys be "traversal
+safe" - that is, that no logical trip would ever go from one extreme to the
+other, unless it is sufficiently close that we are happy pretending that the
+overlap continued. This would then allow them to operate on pure point-to-point
+ticketing, with no path calculations whatsoever, and a general assumption that
+skirting is normal and traversal rare. Railway journeys could then be the only
+ones which do the full pathing, minimizing the problems - but not solving them.
+To further reduce the issues, the pathing could be derived from railway station
+zone maps only, preventing anomalous cross-city paths from disrupting the zone
+set of a duration ticket; however, this would depend on there being overlap
+stations for all adjacencies (or else imaginary stations to augment them). Or,
+a political decision could be made, that no single journey will ever cost more
+than two zones, and adopt point-to-point ticketing for all modes. This would be
+by far the simplest solution, but would discount - potentially, quite heavily -
+long journeys. Discuss!
+
 Ticket durations and touches-off
 --------------------------------
 
