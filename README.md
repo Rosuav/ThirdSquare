@@ -121,8 +121,12 @@ time a touch (or presumed touch) occurs, the following steps are performed:
     3. For ultimate optimization, perform this search recursively and seek the
        minimum zone count. As an efficiency cheat, assume that any removal is a
        valid removal, but then acknowledge that there MAY be crazy edge cases
-       that depend on the order of the checks done. For consistency, always
-       check in an obvious order, eg lexicographically by zone identifier.
+       that depend on the order of the checks done. As a general rule, working
+       from the least frequently used zones will give optimal results; but in
+       case edge cases exist, ensure that zones are checked in some consistent
+       order (eg lexically by zone identifier) even when multiple have the same
+       frequency. Frequency-based ordering is unnecessary if the full recursive
+       search is performed, but this should be cheaper (I think!).
     4. The number of zones in the union at the end is the ticket's zone count.
 5. If the current zone count exceeds the paid-for zone count, charge for the
    additional zone(s) and reject the touch if the charge is rejected.

@@ -152,6 +152,61 @@ void load_keys(string priv, string pub)
 	};
 }
 
+/* From the README:
+4. Count the number of zones needed for this ticket. This is the smallest
+   number of zones which can, between them, cover every touch done today.
+    1. Take the union of all zones which have been used at all.
+    2. For each zone in the union, remove it from the union, then iterate over
+       all touches in the ticket, checking intersection with that touch's zones.
+       If any intersection comes up empty, the zone is needed, and must be kept.
+       Otherwise, it can be removed.
+    3. For ultimate optimization, perform this search recursively and seek the
+       minimum zone count. As an efficiency cheat, assume that any removal is a
+       valid removal, but then acknowledge that there MAY be crazy edge cases
+       that depend on the order of the checks done. As a general rule, working
+       from the least frequently used zones will give optimal results; but in
+       case edge cases exist, ensure that zones are checked in some consistent
+       order (eg lexically by zone identifier) even when multiple have the same
+       frequency. Frequency-based ordering is unnecessary if the full recursive
+       search is performed, but this should be cheaper (I think!).
+    4. The number of zones in the union at the end is the ticket's zone count.
+
+This function takes an array representing today's touches. Each is either a set or
+a blank-delimited string of zone identifiers. It will return an array of zones for
+which the traveller should be charged. Note that the exact *set* of zones should
+not be trusted (though it's useful debugging information); only the *count* is of
+any use long-term.
+*/
+array(string) zoneset(array(multiset|string) touches)
+{
+	if (!sizeof(touches)) return ({ }); //No touches? No zones.
+	if (stringp(touches[0])) touches=(array(multiset))(touches[*]/" "); //An array of sets is more useful to us.
+	mapping(string:int) zones=([]);
+	//1. Take the union of all zones used at all, and count up usages.
+	foreach (touches,multiset zonemap) foreach (zonemap;string z;) ++zones[z];
+	//2. Try removing zones and see if it fails. Start with the least-frequently-used.
+	array all_zones=indices(zones),counts=values(zones);
+	//We could just use "sort(v,i);" and then iterate over i, but that would
+	//leave elements unsorted in the case of count collisions, which will be
+	//common. The consequence of such a collision is unlikely to be significant,
+	//but at the cost of one extra sort operation, we ensure that they're sorted
+	//lexically by zone identifier within that. (Pike's sort() is stable.)
+	sort(all_zones,counts); sort(counts,all_zones);
+	multiset(string) minimum=(multiset)all_zones;
+	foreach (all_zones,string zone)
+	{
+		minimum[zone]=0;
+		foreach (touches,multiset t) if (!sizeof(t&minimum))
+		{
+			//Problem: If we remove this one, we have no zone that
+			//covers this touch. So this zone needs to be reinstated.
+			minimum[zone]=1;
+			break;
+		}
+	}
+	return (array)minimum;
+}
+
 void create()
 {
 	load_keys("server_key", "client_keys");
@@ -218,6 +273,21 @@ void create()
 			{
 				write("%s:%s = %s\n%s:%s = %s\n",initial,dest,path,dest,initial,routes[dest][initial]);
 			}
+		}
+		exit(0);
+	}
+
+	if (G->options->zoneset)
+	{
+		foreach (({
+			({"1 2","2 3","3 4","4 5"}),
+			({"1 2","2 3 4","1 2","1 3"}),
+			({"1 2","1 3","1 4","1 5","1 6"}),
+			({"1 9","2 9","3 9","4 9","5 9"}),
+		}),array(string) touches)
+		{
+			array zones=zoneset(touches);
+			write("Touch in %s\nZones: %d (%s)\n",touches*" | ",sizeof(zones),zones*", ");
 		}
 		exit(0);
 	}
