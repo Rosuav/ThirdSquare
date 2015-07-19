@@ -212,6 +212,13 @@ void create()
 		}
 		write("Zone adjacencies: %O\n",zones);
 		write("Zone paths: %O\n",routes);
+		foreach (routes;string initial;mapping destinations)
+		{
+			foreach (destinations;string dest;string path) if (has_value(path," --> ") && dest>initial)
+			{
+				write("%s:%s = %s\n%s:%s = %s\n",initial,dest,path,dest,initial,routes[dest][initial]);
+			}
+		}
 		exit(0);
 	}
 
