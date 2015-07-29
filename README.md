@@ -487,7 +487,40 @@ stations for all adjacencies (or else imaginary stations to augment them). Or,
 a political decision could be made, that no single journey will ever cost more
 than two zones, and adopt point-to-point ticketing for all modes. This would be
 by far the simplest solution, but would discount - potentially, quite heavily -
-long journeys. Discuss!
+long journeys.
+
+The upshot of all of this, and cf The Midga, Personal Communication, is that
+every attempt to solve this problem just moves the edge cases around, without
+actually curing anything. So let's go with something really really simple.
+
+All journeys now fall under one of three distance categories:
+
+* Local journeys are those which have at least one zone in common between their
+  origin and destination. These are simple: you won't be charged for any extra
+  zones. (Note that it's entirely possible for you to end up being charged for
+  other zones than the one that was actually in common. Only very weird edge
+  cases will have this be significantly different.)
+* Adjacent journeys are those which, while they don't have any zones in common,
+  have some pair of zones which is in the adjacency table. So, for instance, a
+  journey may begin in zone 1|4 and end in zone 2|5; if there exists a location
+  in zone 1|5, then these locations are deemed to be adjacent. You will be
+  charged for your two end points, plus the overlap pair; this will ensure that
+  you are definitely charged for at least two zones, but in many situations, no
+  more than two.
+* Cross-zone journeys are those which are neither local nor adjacent. For these
+  trips, an additional zone must be charged for. This is done by adding a zone
+  to the touch map which carries the magical property of vanishing as long as
+  at least three real zones are being charged for.
+
+This system ensures that any "wonk" in the fares is in the traveller's favour.
+For instance, it is not possible to ever be charged for four or more zones in a
+single journey; and it is also not possible for "closing the triangle" to cost
+more than the original two sides have already cost. It is also simple, and has
+very few hairinesses to explain. Staying in one zone? Charged for one. Going
+from one zone into the next? Charged for two. Going a long way? Charged for
+three zones, never more. As an added bonus, we don't have to stress too much
+about the exact fare charged for a presumed touch-off, as it can never exceed
+the three-zone charge for a cross-zone journey.
 
 Ticket durations and touches-off
 --------------------------------
