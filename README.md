@@ -434,7 +434,7 @@ adjacency (eg 1|4 to 2|3 with the above 1|2 existing in the system), then also
 no path zones need be added. It's only when a single trip would cost three or
 more zones that pathing really comes into it.
 
-* There will be 20 zones in the Melbourne region. *
+(Scale note: There will be 20 zones in the Melbourne region.)
 
 Oh great. Just awesome. Turns out that pathing interacts VERY badly with two
 other situations: duration tickets, and additional trips. The simplest and
