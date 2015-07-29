@@ -522,6 +522,13 @@ three zones, never more. As an added bonus, we don't have to stress too much
 about the exact fare charged for a presumed touch-off, as it can never exceed
 the three-zone charge for a cross-zone journey.
 
+For the purposes of duration tickets, the mythic zone can be satisfied by any
+zone; if you travel from zone 1|4 to 7|8, and you have a 1|2|7 ticket, this
+will be deemed acceptable. Technically, a zone 1|4|7 ticket should NOT suffice,
+but in the interests of simplicity and consistency, it will be permitted.
+However, a zone 1|7 ticket will not be sufficient, and you would be charged for
+one additional zone of automated ticket.
+
 Ticket durations and touches-off
 --------------------------------
 
