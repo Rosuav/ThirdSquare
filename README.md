@@ -581,3 +581,50 @@ do not would further complicate matters, and I'm not sure it fixes the problem.
 Current inclination: Touches-off should not extend tickets. Fare evasion is
 fare evasion, and while it is be nice to build evasion discouragement into the
 code, it is not important enough to justify excessive complexity.
+
+Ticket security and cloning
+---------------------------
+
+NFC devices could, in theory, clone your ticket and have an exact duplicate.
+This could be abused in one of two ways: cloning your own card, or cloning
+someone else's. Cloning your own card has minimal benefit; you would have two
+cards that operate identically. It would potentially confuse the system some,
+and while you might be able to abuse this to have two people travelling within
+the same zones during the same hours and pay for only one ticket, it's not
+usually going to be particularly beneficial. The main advantage could be given
+legitimately by making it easy to have multiple cards issued against the same
+account, thus allowing fleet usage to share billing details. This would be a
+saleable feature, and if it's well enough known, nobody would need to bother
+cloning their cards. (Notably, cloning a card does NOT clone the money on it,
+as it would with a stored-value card; the two cards would simply deplete the
+same pool.)
+
+Cloning someone else's card, however, is more serious; it is effectively the
+same as stealing the card, only worse, because  that the owner can't notice its
+loss. As such, this would make a very effective form of fraud - move around a
+crowded train with a device in your pocket that steals the details of any card
+it gets near enough to.
+
+This could be prevented by uprating the cards to perform cryptography. Assign
+each card a unique keypair, and record the public key on the central server.
+This would dramatically increase the processing cost (not intrinsically a
+problem), and would also require far more disk pages to be read as part of a
+touch operation, just for the unlikely event of a cloned card. (It needn't
+increase latency; the entire operation can still be done as a single UDP
+packet out and a single UDP packet back, though they may need to be larger in
+order to carry the additional payload.) The most serious cost is that the
+cards themselves now have to contain hardware capable of crypto, and enough
+protection to prevent a device from leeching the key. This may prove to be
+entirely impossible, or even if it is possible, economically unviable.
+
+For comparison, credit cards (which use the same technology - see for instance
+Visa PayWave) are worth a lot more to the issuer than a single ticket will be
+(thus, the cost of improving the security is amortized over more transactions),
+and can represent far greater dollar amounts (eg transaction limit of $100, and
+daily limit of $1,000 - compared to ThirdSquare tickets where you'd be hard
+pressed to spend a tenth that in a day)... and they have no protection against
+this kind of attack. None whatsoever. All they'll do is let you dispute charges
+after the event, and maybe, if you fill out the three-page form, and if you're
+not found to have been careless with your card, they'll reverse the transaction
+for you. So the question is: Are we content with bank-level security, or do we
+want something better?
