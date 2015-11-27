@@ -628,3 +628,24 @@ after the event, and maybe, if you fill out the three-page form, and if you're
 not found to have been careless with your card, they'll reverse the transaction
 for you. So the question is: Are we content with bank-level security, or do we
 want something better?
+
+Abolition of duration tickets
+-----------------------------
+
+Instead of direct funds and access to funds, we could register unique travel
+credits (preferably with some cool marketable name). Travel would require one
+credit per zone touched per day, halved (rounded up) if all travel in that day
+is within a two-hour period. Instead of duration tickets, we could offer price
+breaks that encourage bulk purchase of credits; for instance, normal rate might
+be two dollars per credit, but you can buy 55 credits for $100 (10% bonus!) or
+750 credits for $1000 (50% bonus, wow!).
+
+You could customize your account to auto-purchase X credits whenever you run
+out. This would allow extremely convenient usage with broadly predictable cost,
+where you get to choose between lumpier billing ("ack, I just got charged a
+hundred bucks!") and higher overall cost ("it's still costing me $2/credit!").
+
+Duration plans might be saleable features; like the "yearly ticket debited
+monthly", you could sign up for a year to get 60 credits a month for $100.
+
+This would massively oversynergize with fleet purchases. Is this acceptable?
