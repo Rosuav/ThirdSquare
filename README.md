@@ -348,8 +348,7 @@ exits a location and then reenters it, all while heading toward the same target
 location; this could confuse location descriptors. In other words, it's fine to
 exit a location, go to the terminus, then start a return journey that goes into
 the same location in the opposite direction; but not to loop around and hit the
-same place again after leaving it... it may be safer to deem the entire loop as
-a single location, although this is NOT RECOMMENDED.
+same place again after leaving it.
 
 Locations SHOULD be identified in a service-specific way, such that bus, train,
 and tram locations in near proximity are still distinguishable. This allows for
