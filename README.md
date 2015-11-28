@@ -664,7 +664,7 @@ but take the train home, and it's half the price of taking trains both ways).
 Instead, we could offer an "Off-Peak" ticket. If you never touch on during peak
 time (see above: touches off should not affect ticket durations), the credit
 cost of the ticket is halved. Peak time is defined as weekdays (only) between
-6AM and 10AM and between 3PM and 7PM. The off-price ticket is thus also a
+6AM and 10AM and between 3PM and 7PM. The off-peak ticket is thus also a
 weekend saver.
 
 A normal trip is entirely capable of touching on during off-peak and then
