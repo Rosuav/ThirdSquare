@@ -46,8 +46,8 @@ A card will most often be used in the state that issued it, but this is not a
 requirement. Whenever a card is used for the first time in a new state, it is
 verified against an account, and then a new per-state record is created for it;
 most likely, the account will then be debited the price of a ticket. This makes
-multi-state usage almost transparent - a Melburnian commuter with an active
-monthly ticket can travel to Adelaide, the monthly ticket is ignored, and a few
+multi-state usage almost transparent - a Melburnian commuter with some travel
+credits can travel to Adelaide, the credits are ignored, and a few
 dollars get debited to pay for local travel.
 
 All communication goes through the local server, which is therefore in total
@@ -80,38 +80,79 @@ the trains - you could ride in and out all day), but a normal sane traveller
 would be unlikely to travel further than this. For buses and trams, this would
 be the end of the route; for railway stations... Houston, we have a problem.
 
-To simplify the boundary conditions (particularly with presumed touches off),
-timestamps are ignored for touches off. If you board a vehicle at 8:59 when you
-have an open ticket until 9:00, you will not be charged for a daily ticket.
-The touch off (presumed or explicit) will affect your zone usage, however.
+Accounts, fleets, and finances
+==============================
 
-Automated tickets
-=================
+An account is a financial entity. It may have multiple cards associated with
+it, but has exactly one billing contact. In the simplest case, a new traveller
+purchases a ThirdSquare ticket, which would be associated with a newly-created
+account; other common cases would be the family fleet of cards (each family
+member has a card, and a unified pool of funds is used), the business with a
+large number of employees (as employees come and go, cards get reallocated),
+the person who wants a backup card, etc. Additional cards for an account can be
+offered fairly inexpensively (basically just price of manufacture, ideally),
+and it should be possible to log in via the web and see all cards and their
+activity (eg to audit corporate card use).
 
-Prepurchased tickets are always of at least one day duration, and have their
-zones listed explicitly. Automatic tickets currently have a maximum duration of
-one day (to keep the decision tree bounded - see below), and have a cut-off
-timestamp. When you first touch on, the timestamp is set to be two hours away;
-round forwards to the next hour, and after 6PM, give until 4AM. If a touch-on
-occurs after this time, the ticket is expanded to a daily, flagging it as a
-double-price ticket and granting until 4AM.
+Each account would have a balance, and a credit limit. By default the credit
+limit is zero, but a corporate account could be given a limit of (eg) $500,
+permitting post-paid usage. In the simplest case, the balance must be kept
+non-negative for travel to be permitted, but a web login could permit credit
+card details to be recorded, allowing automatic debiting to reload the card.
+(This could be set with a transaction minimum of, say, $20; if your ThirdSquare
+balance would fall below zero, your credit card would be charged for $20, and
+that credited to your account.)
 
-Zone usage of automated tickets is completely independent of the duration. Each
-time a touch (or presumed touch) occurs, the following steps are performed:
+Direct depletion of funds would be treated on par with the "Myki Money" system.
+It isn't the most efficient way to travel regularly, but it's easy, convenient,
+and flexible. For regular travel within one state's network, an alternative is
+offered; note that each state may choose its own system, and I will describe
+the Melbourne system only.
 
-1. Look for a prepurchased ticket valid for the current day and having nonzero
-   zone intersection with the current location's zones. If there is one, permit
-   the touch - done.
-2. Look for an existing automated ticket for this card. If there is none, add
-   one with zero paid-for zones and a cut-off time as described above. If there
-   is one, check if its duration has expired; if so, expand it to daily. NOTE:
-   This could add a nasty slab to the price, if the user has previously touched
-   on in a large number of zones, and particularly if s/he failed to touch off,
-   picking up some very remote touches. The sudden expansion to daily will cost
-   roughly as much as all previous touches combined (more if it also adds yet
-   another zone to the bill).
-3. Add a new entry to the ticket, listing the zones of the current trip.
-4. Count the number of zones needed for this ticket. This is the smallest
+Travel credits
+--------------
+
+Instead of always depleting direct funds, a traveller can prepurchase travel
+credits (preferably with some cool marketable name). Travel would require one
+credit per zone touched per day, halved (rounded up) if all travel in that day
+is within the off-peak hours. Instead of duration tickets, we could offer price
+breaks that encourage bulk purchase of credits; for instance, normal rate might
+be two dollars per credit, but you can buy 55 credits for $100 (10% bonus!) or
+750 credits for $1000 (50% bonus, wow!).
+
+You could customize your account to auto-purchase X credits whenever you run
+out. This would allow extremely convenient usage with broadly predictable cost,
+where you get to choose between lumpier billing ("ack, I just got charged a
+hundred bucks!") and higher overall cost ("it's still costing me $2/credit!").
+This purchase would deplete account funds, or debit a credit card.
+
+Duration plans might be saleable features; like the "yearly ticket debited
+monthly", you could sign up for a year to get 60 credits a month for $100.
+
+This would combo off strongly with fleet purchases. Effectively, the monthly
+or yearly usage can be split across cards in the fleet; you can take full
+advantage of discounts applicable to your combined usage. This is then an
+incentive for big companies to get all their staff onto public transport.
+
+Fully automated ticketing
+=========================
+
+(The individual states have the power to customize any of this, independently
+of the other states. Again, this is Melbourne's system.)
+
+Whenever you touch a card to a reader, a number of checks are done to determine
+the validity of the touch.
+
+1. Add a new entry to the day's ticket, listing the zones of the current trip.
+   If it is a touch-off, its timestamp is ignored (and it might even go onto
+   the previous day's ticket), otherwise it is added to the touch pattern.
+2. If all of the day's touches are in off-peak times (10AM-3PM or 7PM-6AM, or
+   all day on weekends and public holidays), halve the ticket price. A normal
+   trip is entirely capable of touching on during off-peak and then continuing
+   into shoulder-peak, but usually not into full peak when services are most
+   packed; the discounted fare will thus help keep traffic away from peak.
+   As long as no peak-time touch-on occurs, the ticket counts as off-peak.
+3. Count the number of zones needed for this ticket. This is the smallest
    number of zones which can, between them, cover every touch done today.
     1. Take the union of all zones which have been used at all.
     2. For each zone in the union, remove it from the union, then iterate over
@@ -128,8 +169,16 @@ time a touch (or presumed touch) occurs, the following steps are performed:
        frequency. Frequency-based ordering is unnecessary if the full recursive
        search is performed, but this should be cheaper (I think!).
     4. The number of zones in the union at the end is the ticket's zone count.
+4. Halve the zone count if this is an off-peak ticket.
 5. If the current zone count exceeds the paid-for zone count, charge for the
    additional zone(s) and reject the touch if the charge is rejected.
+   1. If there are sufficient ticket credits, deduct them and approve.
+   2. If the account (or card, if credits are per-card) has requested that
+      credits be purchased when low, purchase more credits, using account funds
+      or credit card etc.
+   3. Otherwise, charge the base charge for the journey, using account funds.
+   4. If sufficient account funds are not available and the credit card (if
+      any) declines the charge, reject the touch.
 
 These steps are 100% reproducible and deterministic, and can never decrease the
 ticket's zone count. They do, however, require examination of *every* touch in
@@ -140,9 +189,9 @@ unworkable; the algorithm as described above scales with the square of touches.
 Additionally, while it's reasonable to count a single day's travel as covering
 all applicable zones, trying to expand this to multiple days becomes hairier;
 if a commuter steps outside his usual route for one day in a month, how should
-this be charged? The safest solution is to keep each day's travel separate. For
-the regular travellers who wish to save money by using longer-duration tickets,
-the overhead of explicitly purchasing them will be easily justified.
+this be charged? The safest solution is to keep each day's travel separate.
+Thus all tickets are based on a single day's travel, and bulk discounts are
+applied at a higher level.
 
 Touch-Off Detection
 ===================
@@ -215,8 +264,7 @@ and always, for all operations, treats those hours as belonging to the previous
 day. Note that touches-off are detected on the basis of their run numbers, NOT
 the date of operation; if you touch on prior to the roll-over, then touch off
 after the roll-over, it will be correctly detected. However, if you then touch
-on again, it will be deemed a new day, and will open a new ticket or check for
-longer validity on your period ticket.
+on again, it will be deemed a new day, and will open a new ticket.
 
 Note that currently, the system assumes that time increases monotonically, and
 that touches are processed in chronological order. The former can be ensured by
@@ -229,7 +277,7 @@ touch on again, and then have the retry of your touch off arrive. This would
 result in all three touches (and the touch off at the end of your second trip)
 to be counted as touches-on. To reduce the chances of this occurring, coverage
 at railway stations needs to be excellent; it may also be important to hammer
-the retry loop, possibly with no gap exceeding 15 seconds. None of this can
+the retry loop, possibly with no gap exceeding 2 seconds. None of this can
 entirely prevent the problem, but it will make it vanishingly unlikely.
 
 NOTE: In time zones using Daylight Saving Time, it is possible to experience
@@ -303,8 +351,8 @@ zones; a ticket for any of those zones is valid for travel at that location.
 The set of all zones valid at a given location is that location's zone map. The
 set of all zones for which a period ticket is valid is similar; so long as any
 intersection exists between the ticket's zones and the location's zone map, it
-is valid. For automated tickets, the system chooses the minimum number of zones
-in the manner described above.
+is valid. A ticket's exact set of zones is ephemeral, and may change any time
+a new touch is added; all that truly matters is the *count* of zones.
 
 Zones must be defined in a totally ordered manner. Identifying them with simple
 numbers or alphabetizable strings is sufficient.
@@ -552,12 +600,12 @@ worth noting.
 
 Also, if touches extend tickets, the deemed time of the automated touch becomes
 significant. This may mean that people complain very loudly when their ticket
-gets unexpectedly expanded to a daily (roughly doubling their fare), and may
+gets unexpectedly expanded to cover peak time (doubling their fare), and may
 have other unintended consequences; it also worsens the day-break problem, as
 any run which spans the boundary will trigger this for failed-touches-off.
 Consistency could be achieved by deeming that ALL automated touches occur at
-notional end-of-day, which would mean that failing to touch off would always
-result in a daily fare; this would likely cause resentment in other areas, and
+notional end-of-peak, which would mean that failing to touch off would always
+result in a peak fare; this would likely cause resentment in other areas, and
 doesn't improve the situation significantly, and so is not worth doing.
 
 Conversely, if touches do NOT extend tickets, there is an incentive to cheat on
@@ -629,47 +677,14 @@ not found to have been careless with your card, they'll reverse the transaction
 for you. So the question is: Are we content with bank-level security, or do we
 want something better?
 
-Abolition of duration tickets
------------------------------
+Per-card vs per-account credits
+-------------------------------
 
-Instead of direct funds and access to funds, we could register unique travel
-credits (preferably with some cool marketable name). Travel would require one
-credit per zone touched per day, halved (rounded up) if all travel in that day
-is within the off-peak hours. Instead of duration tickets, we could offer price
-breaks that encourage bulk purchase of credits; for instance, normal rate might
-be two dollars per credit, but you can buy 55 credits for $100 (10% bonus!) or
-750 credits for $1000 (50% bonus, wow!).
+If credits are isolated to a card, they are functionally identical to separate
+weekly/monthly/yearly (actually 10x2hr, 40x2hr, etc) tickets. Maintaining a
+fleet of 100 cards would require maintaining 100 credit balances.
 
-You could customize your account to auto-purchase X credits whenever you run
-out. This would allow extremely convenient usage with broadly predictable cost,
-where you get to choose between lumpier billing ("ack, I just got charged a
-hundred bucks!") and higher overall cost ("it's still costing me $2/credit!").
-
-Duration plans might be saleable features; like the "yearly ticket debited
-monthly", you could sign up for a year to get 60 credits a month for $100.
-
-This would combo off strongly with fleet purchases. Effectively, the monthly
-or yearly usage can be split across cards in the fleet; you can take full
-advantage of discounts applicable to your combined usage. This is then an
-incentive for big companies to get all their staff onto public transport.
-
-Two-hour tickets
-----------------
-
-Currently, a two-hour ticket (half the price of a daily for the same zones)
-serves two purposes: short-duration non-commute travel ("I'm just going to nip
-off to the shops"), and a broad concept of one-way ticket (you carpool to work
-but take the train home, and it's half the price of taking trains both ways).
-
-Instead, we could offer an "Off-Peak" ticket. If you never touch on during peak
-time (see above: touches off should not affect ticket durations), the credit
-cost of the ticket is halved. Peak time is defined as weekdays (only) between
-6AM and 10AM and between 3PM and 7PM. The off-peak ticket is thus also a
-weekend saver.
-
-A normal trip is entirely capable of touching on during off-peak and then
-continuing into shoulder-peak, but usually not into full peak when services are
-most packed.
-
-This will create its own set of edge and corner cases, but probably less
-serious ones than alternatives.
+On the other hand, having per-account credits means the account needs per-state
+data, which otherwise does not happen. Or rather, the state needs per-account
+data, as there's no way the central database will be burdened with this (both
+for reasons of state isolation, and because we can't afford to hammer that DB).
