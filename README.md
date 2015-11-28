@@ -648,4 +648,7 @@ hundred bucks!") and higher overall cost ("it's still costing me $2/credit!").
 Duration plans might be saleable features; like the "yearly ticket debited
 monthly", you could sign up for a year to get 60 credits a month for $100.
 
-This would massively oversynergize with fleet purchases. Is this acceptable?
+This would combo off strongly with fleet purchases. Effectively, the monthly
+or yearly usage can be split across cards in the fleet; you can take full
+advantage of discounts applicable to your combined usage. This is then an
+incentive for big companies to get all their staff onto public transport.
