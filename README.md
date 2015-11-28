@@ -253,7 +253,7 @@ policy that touches-off do not affect ticket duration. This may need to be
 special-cased; railway station touches may always affect duration. Don't like.)
 
 This requires that a vehicle know in advance what its next trip will be, or
-else to reject touches-on until it knows that. Is that a problem? TODO: Ask.
+else to reject touches-on until it knows that.
 Vehicles must also have run numbers, which are never reused; XKCD 1340 style
 recommended, but not enforced. Since run numbers are per-vehicle (with the
 exception of railway stations, which don't use them at all), it doesn't hurt
