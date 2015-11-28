@@ -75,10 +75,8 @@ the same vehicle as all other lines), and same day. If so, it's a touch off.
 Any time there is a touch on for an already-touched-on card, and any time that
 the card is probed and it's been more than a day since the touch on, the server
 will register a "presumed touch off". This is done as the "longest logical"
-journey from the touch-on point; it might be possible to travel further (esp on
-the trains - you could ride in and out all day), but a normal sane traveller
-would be unlikely to travel further than this. For buses and trams, this would
-be the end of the route; for railway stations... Houston, we have a problem.
+journey from the touch-on point - the longest possible normal trip from there.
+Touches on platforms (railway stations) use a separate handler; see below.
 
 Terminology
 ===========
