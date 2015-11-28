@@ -80,6 +80,24 @@ the trains - you could ride in and out all day), but a normal sane traveller
 would be unlikely to travel further than this. For buses and trams, this would
 be the end of the route; for railway stations... Houston, we have a problem.
 
+Terminology
+===========
+
+A "normal trip" is one which a traveller with broad knowledge of the system
+would use to get from one origin to one destination. Fare calculation etc is
+all predicated on normal trips; if someone boards a vehicle, rides it to its
+terminus, stays on board until it reaches the far end, and begins another
+round trip, this is an abnormal trip, and may be under-charged. Similarly,
+riding three sides of a square may end up under-charged as if you had taken
+the shorter distance.
+
+This makes the system under-charge the gunzel and the geographically-challenged
+traveller, in the interests of simplicity. It may, for instance, be cheaper to
+fail to touch off, after riding the new tram up and down for half the day, as
+the automated touch off will have already occurred. Frankly, we don't care; it
+just isn't worth enforcing every little silly thing. The general assumption is
+that people care primarily about time cost, and secondarily about money cost.
+
 Accounts, fleets, and finances
 ==============================
 
