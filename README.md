@@ -272,7 +272,9 @@ Timestamping
 
 Date and time: The system is posited on a cycle of days, each with a known
 beginning and end. This works very nicely with a system that has a regular
-downtime (say, 2AM-4AM); it doesn't hurt if a day contains additional hours
+downtime (say, 2AM-4AM) during which few people travel, as it is possible for
+trips spanning this time to be charged to both days (confusing and potentially
+expensive for night travel). It doesn't hurt if a day contains additional hours
 from midnight until some particular cut-off, just as long as it's consistent.
 The stipulated day-break (and no, I don't mean the coronet) is handled as some
 number of hours (possibly zero) after midnight in some time zone (possibly UTC)
