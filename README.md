@@ -635,7 +635,7 @@ Abolition of duration tickets
 Instead of direct funds and access to funds, we could register unique travel
 credits (preferably with some cool marketable name). Travel would require one
 credit per zone touched per day, halved (rounded up) if all travel in that day
-is within a two-hour period. Instead of duration tickets, we could offer price
+is within the off-peak hours. Instead of duration tickets, we could offer price
 breaks that encourage bulk purchase of credits; for instance, normal rate might
 be two dollars per credit, but you can buy 55 credits for $100 (10% bonus!) or
 750 credits for $1000 (50% bonus, wow!).
@@ -652,3 +652,24 @@ This would combo off strongly with fleet purchases. Effectively, the monthly
 or yearly usage can be split across cards in the fleet; you can take full
 advantage of discounts applicable to your combined usage. This is then an
 incentive for big companies to get all their staff onto public transport.
+
+Two-hour tickets
+----------------
+
+Currently, a two-hour ticket (half the price of a daily for the same zones)
+serves two purposes: short-duration non-commute travel ("I'm just going to nip
+off to the shops"), and a broad concept of one-way ticket (you carpool to work
+but take the train home, and it's half the price of taking trains both ways).
+
+Instead, we could offer an "Off-Peak" ticket. If you never touch on during peak
+time (see above: touches off should not affect ticket durations), the credit
+cost of the ticket is halved. Peak time is defined as weekdays (only) between
+6AM and 10AM and between 3PM and 7PM. The off-price ticket is thus also a
+weekend saver.
+
+A normal trip is entirely capable of touching on during off-peak and then
+continuing into shoulder-peak, but usually not into full peak when services are
+most packed.
+
+This will create its own set of edge and corner cases, but probably less
+serious ones than alternatives.
