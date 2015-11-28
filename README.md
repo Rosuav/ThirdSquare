@@ -594,6 +594,9 @@ but in the interests of simplicity and consistency, it will be permitted.
 However, a zone 1|7 ticket will not be sufficient, and you would be charged for
 one additional zone of automated ticket.
 
+Rejected alternate sub-proposals
+================================
+
 Ticket durations and touches-off
 --------------------------------
 
@@ -643,7 +646,7 @@ more than X hours - which would have its own stupid cases).
 A messy system in which railway station touches always affect times but others
 do not would further complicate matters, and I'm not sure it fixes the problem.
 
-Current inclination: Touches-off should not extend tickets. Fare evasion is
+Thus it is decided that touches-off should not extend tickets. Fare evasion is
 fare evasion, and while it is be nice to build evasion discouragement into the
 code, it is not important enough to justify excessive complexity.
 
@@ -691,8 +694,8 @@ pressed to spend a tenth that in a day)... and they have no protection against
 this kind of attack. None whatsoever. All they'll do is let you dispute charges
 after the event, and maybe, if you fill out the three-page form, and if you're
 not found to have been careless with your card, they'll reverse the transaction
-for you. So the question is: Are we content with bank-level security, or do we
-want something better?
+for you. For the present, we will content ourselves with merely bank-level
+security, leaving open the possibility of improving on this later.
 
 Per-card vs per-account credits
 -------------------------------
@@ -705,3 +708,6 @@ On the other hand, having per-account credits means the account needs per-state
 data, which otherwise does not happen. Or rather, the state needs per-account
 data, as there's no way the central database will be burdened with this (both
 for reasons of state isolation, and because we can't afford to hammer that DB).
+
+Keeping credits on the account has internal problems; keeping them on the card
+has external problems. Thus we opt for the former.
