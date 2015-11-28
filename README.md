@@ -316,7 +316,8 @@ depends on any given vehicle maintaining a unique and constant IP address for
 the duration of one "session", with no passengers remaining on board across a
 session break. For instance, a bus might return to the depot, shut down, and
 relinquish its IP address, but if it reboots during a run, matters could become
-extremely messy if its IP changes.
+extremely messy if its IP changes. More importantly, it is not possible for two
+validation nodes to share an IP address (eg NAT).
 
 The IP address is tied to a public key. Consequently, each vehicle must have a
 single encryption computer; it may have multiple validators, but they will be
