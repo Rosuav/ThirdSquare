@@ -385,10 +385,8 @@ Identifiers: Zones
 Ticketing zones are broad areas of coverage charged at the same rate. Any given
 location may be in one single zone, or may be in the overlap of any number of
 zones; a ticket for any of those zones is valid for travel at that location.
-The set of all zones valid at a given location is that location's zone map. The
-set of all zones for which a period ticket is valid is similar; so long as any
-intersection exists between the ticket's zones and the location's zone map, it
-is valid. A ticket's exact set of zones is ephemeral, and may change any time
+The set of all zones valid at a given location is that location's zone map.
+A ticket's exact set of zones is ephemeral, and may change any time
 a new touch is added; all that truly matters is the _count_ of zones.
 
 Zones must be defined in a totally ordered manner. Identifying them with simple
