@@ -266,10 +266,6 @@ suffice, and as we all know, signage is seldom noticed.
 (Parenthesis: Train journeys can easily cross many zones, especially since
 changing services at Flinner doesn't involve any touches. This makes a problem
 for point-to-point fare calculation. See below.)
-(Parenthesis: Train journeys can easily consume many hours, especially since
-changing services doesn't involve any touches. This makes a problem for the
-policy that touches-off do not affect ticket duration. This may need to be
-special-cased; railway station touches may always affect duration. Don't like.)
 
 This requires that a vehicle know in advance what its next trip will be, or
 else to reject touches-on until it knows that.
