@@ -159,15 +159,27 @@ of the other states. Again, this is Melbourne's system.)
 Whenever you touch a card to a reader, a number of checks are done to determine
 the validity of the touch.
 
-1. Add a new entry to the day's ticket, listing the zones of the current trip.
-   If it is a touch-off, its timestamp is ignored (and it might even go onto
-   the previous day's ticket), otherwise it is added to the touch pattern.
-2. If all of the day's touches are in off-peak times (10AM-3PM or 7PM-6AM, or
-   all day on weekends and public holidays), halve the ticket price. A normal
-   trip is entirely capable of touching on during off-peak and then continuing
-   into shoulder-peak, but usually not into full peak when services are most
-   packed; the discounted fare will thus help keep traffic away from peak.
-   As long as no peak-time touch-on occurs, the ticket counts as off-peak.
+1. See if this is a touch-on or a touch-off. If it is a touch on and the card
+   was already touched on, first add a presumed touch off, then proceed to add
+   the current touch on. For a touch on, it's quite simple: just add the zone
+   map to the current day's ticket, including its timestamp.
+2. For a touch off, ascertain which distance category the trip falls under:
+   * Local journeys are those which have at least one zone in common between their
+     origin and destination. These are simple: you won't be charged for any extra
+     zones. (Note that it's entirely possible for you to end up being charged for
+     other zones than the one that was actually in common. Only very weird edge
+     cases will have this be significantly different.)
+   * Adjacent journeys are those which, while they don't have any zones in common,
+     have some pair of zones which is in the adjacency table. So, for instance, a
+     journey may begin in zone 1|4 and end in zone 2|5; if there exists a location
+     in zone 1|5, then these locations are deemed to be adjacent. You will be
+     charged for your two end points, plus the overlap pair; this will ensure that
+     you are definitely charged for at least two zones, but in many situations, no
+     more than two.
+   * Cross-zone journeys are those which are neither local nor adjacent. For these
+     trips, an additional zone must be charged for. This is done by adding a zone
+     to the touch map which carries the magical property of vanishing as long as
+     at least three real zones are being charged for.
 3. Count the number of zones needed for this ticket. This is the smallest
    number of zones which can, between them, cover every touch done today.
     1. Take the union of all zones which have been used at all.
@@ -184,8 +196,15 @@ the validity of the touch.
        order (eg lexically by zone identifier) even when multiple have the same
        frequency. Frequency-based ordering is unnecessary if the full recursive
        search is performed, but this should be cheaper (I think!).
-    4. The number of zones in the union at the end is the ticket's zone count.
-4. Halve the zone count if this is an off-peak ticket.
+    4. If the mythic zone is needed, add it. If it's there but we have three
+       or more real zones, remove it.
+    5. The number of zones in the union at the end is the ticket's zone count.
+4. If all of the day's touches are in off-peak times (10AM-3PM or 7PM-6AM, or
+   all day on weekends and public holidays), halve the ticket price. A normal
+   trip is entirely capable of touching on during off-peak and then continuing
+   into shoulder-peak, but usually not into full peak when services are most
+   packed; the discounted fare will thus help keep traffic away from peak.
+   As long as no peak-time touch-on occurs, the ticket counts as off-peak.
 5. If the current zone count exceeds the paid-for zone count, charge for the
    additional zone(s) and reject the touch if the charge is rejected.
    1. If there are sufficient ticket credits, deduct them and approve.
@@ -375,8 +394,8 @@ a new touch is added; all that truly matters is the _count_ of zones.
 Zones must be defined in a totally ordered manner. Identifying them with simple
 numbers or alphabetizable strings is sufficient.
 
-Open questions
-==============
+Rejected alternate sub-proposals
+================================
 
 Point-to-point fare calculation
 -------------------------------
@@ -399,122 +418,12 @@ all four locations instead of just one, and then bill accordingly; if this were
 the only trip done on a ticket, then it would be charged as a three-zone ticket
 (covering zones 2|4|9), which is thus sufficient to cover the entire zone set.
 
-Downside: Lots and LOTS of processing in what will be a very common case.
+Unfortunately, while this can be implemented reasonably efficiently for a
+single journey, it becomes increasingly difficult as more journeys get added;
+instead of simply accepting the shortest path from point to point, we need to
+find the shortest overall path, which might be quite different.
 
-Upside: Approximately perfect result.
-
-Note that it may be possible to cache these. Every pair (N!) of zones would be
-assigned a number; X-X is implicitly zero, any pair that has an overlap is one,
-and thereafter as per the algo above. Given any pair of zone maps, the cross
-product could be examined, and the lowest pair selected. This may turn out to
-give no benefit beyond the current plan. (Think Erdős numbers or graph
-distance.)
-
-To build the cache:
-
-    zone-pairs = mapping
-    For unique zone-map in locations:
-        For zone in zone-map:
-            If zone not in zone-pairs:
-                zone-pairs[zone] = mapping
-                zone-pairs[zone][zone] = empty # loopback
-            For other-zone in zone-map except zone: # double nested
-                zone-pairs[zone][other-zone] = zone-map
-                For destination in zone-pairs[other-zone]:
-                    path = zone-map + zone-pairs[other-zone][destination]
-                    zone-pairs[zone][destination] = path if shorter than existing value
-		    Ditto zone-pairs[destination][zone]
-
-This is linear in the number of locations, but need be done only once (until
-the locations get changed; could be done once on bootup or signal). The end
-result is a mapping from any zone to any other reachable zone, containing the
-set of all intermediate locations in the shortest path from one to the other;
-this mapping, obviously, contains N² entries, where N is the number of zones in
-any geographically-cohesive area. (Completely disparate areas do not interact;
-it is assumed that no trip can touch on in one area and touch off in another.)
-Lookups into this table are performed in constant time.
-
-To use this cache, take the zone-maps for the two endpoints, and find the pair
-(origin zone, destination zone) with the shortest path. If this path is empty
-(which includes the trivial case of a common zone), no additional touches need
-to be simulated; otherwise, create touches for each of the zone-pairs in the
-path. The above example locations would produce the following table (trivial
-entries and reverse paths omitted for brevity):
-
-    (1,2) -> 1|2
-    (2,4) -> 2|4
-    (1,4) -> 1|2, 2|4
-    (5,9) -> 5|9
-    (4,9) -> 4|9
-    (4,5) -> 4|9, 5|9
-    (1,9) .......
-
-Oh. Turns out I forgot something in the above algorithm: that a new node, when
-discovered, may affect path lengths not involving any of its zones. In fact,
-the search can be modeled with zones as vertices and zone-maps representing one
-or more edges connecting them, each with weight one... which reduces this to
-the good ol' Travelling Salesman Problem. Unless some massive optimization can
-be found, this is a fundamentally hard problem. That said, though, a TSP brute
-force algorithm can probably handle the dozen or so nodes we'll be using here,
-so it might turn out to be "good enough".
-
-No, actually, this isn't TSP. It's a point-to-point distance problem. But I'm
-still not sure how to implement it less naively than massive recursion.
-
-Thanks to some guidance from Ryan Lynch of Thinkful, I've worked out a new
-algorithm, which appears to be functional, and also guarantees termination. The
-search begins by enumerating all zone-pairs (if a location is in three or more
-zones, it represents multiple zone pairs; the system gives preference to those
-locations with less zones in them, and so will tend to find pure pair locations
-rather than actually using 1|3|5 as zone (1,5) adjacency), and then propagates
-a "wave front" from each zone. As the wave front advances, it absorbs all zones
-which overlap any zone currently in the wave front and which aren't already
-behind the wave. Eventually, all zones are either behind the wave (and thus
-have their distances calculated) or inaccessible (which means a trip should be
-rejected).
-
-The initial step of finding location pairs is linear in the number of locations
-on record, or possibly in the number of unique zone maps. Wavefront propagation
-is done once for each zone, and the total effort is capped at one advancement
-per zone (divided among a number of iterations), and is thus O(N*N) in zones, I
-think. In any case, it appears to be reasonably quick on moderate numbers of
-zones and locations, but has yet to be tested on thousands of locations.
-
-Note that it's possible for a return journey to use a different zone map from
-the corresponding outward journey, due to the way the pathing is calculated. It
-is also very much possible for a path to include zones you haven't used, when
-you could have travelled from X to Y through only zones you have already used.
-The only way to perfectly solve this would be to redo the path-find every time,
-giving previously-used zones a cost of 0 and unused zones a cost of 1, but this
-would require knowing which other zones have been used. In fact, this would be
-virtually impossible to do efficiently, as it would require complete analysis
-of the possible zones; effectively, we'd have to try 2**20 possible zone sets
-for the day (starting with the twenty single-zone sets, then the 20*19 pairs,
-then the 20*19*18 triples, etc), and see if there is a path that doesn't go
-outside that set. Instead, we simplify; there will be a canonical path for any
-pair of zones (easiest solution: always calculate from lower zone to higher),
-and you are deemed to have taken that path. This is unlikely ever to affect a
-bus or tram route, as they won't frequently be used across many zones; any trip
-from 1|2 to 2|3 will obviously attract no path zones, and if there's a known
-adjacency (eg 1|4 to 2|3 with the above 1|2 existing in the system), then also
-no path zones need be added. It's only when a single trip would cost three or
-more zones that pathing really comes into it.
-
-(Scale note: There will be 20 zones in the Melbourne region.)
-
-Oh great. Just awesome. Turns out that pathing interacts VERY badly with two
-other situations: duration tickets, and additional trips. The simplest and
-safest way to calculate a single rail journey is "crystal pathing" - figure out
-a path that will get you from X to Y, crystallize it into a set of zones that
-you are presumed to have traversed (including the endpoints; the touches would
-be recorded as all individual zones), and charge you for that many zones. Easy.
-But how can you buy a duration ticket that covers the right zones? At any time,
-a new location could open up, with a new zone map, which will affect the path
-calculation. (It might reduce the number of zones you go through, or it might
-not.) You would then start being charged for a bunch of zones that aren't on
-your ticket. Also, any additional trips taken the same day (a VERY common
-occurrence, naturally!) could affect the optimal calculation. Consider the
-following touch sequence:
+Additionally, consider the following touch sequence:
 
 On in zone 1, off in zone 1|2. On in 1|2, off in 2|3. On in 2|3, off in 3.
 
@@ -539,44 +448,10 @@ to their zone maps, and perhaps the return journey uses slightly different
 locations with different zone maps. How do you go about calculating the true
 zone usage?
 
-One solution would be to require that all bus and tram journeys be "traversal
-safe" - that is, that no logical trip would ever go from one extreme to the
-other, unless it is sufficiently close that we are happy pretending that the
-overlap continued. This would then allow them to operate on pure point-to-point
-ticketing, with no path calculations whatsoever, and a general assumption that
-skirting is normal and traversal rare. Railway journeys could then be the only
-ones which do the full pathing, minimizing the problems - but not solving them.
-To further reduce the issues, the pathing could be derived from railway station
-zone maps only, preventing anomalous cross-city paths from disrupting the zone
-set of a duration ticket; however, this would depend on there being overlap
-stations for all adjacencies (or else imaginary stations to augment them). Or,
-a political decision could be made, that no single journey will ever cost more
-than two zones, and adopt point-to-point ticketing for all modes. This would be
-by far the simplest solution, but would discount - potentially, quite heavily -
-long journeys.
-
 The upshot of all of this, and cf The Midga, Personal Communication, is that
 every attempt to solve this problem just moves the edge cases around, without
-actually curing anything. So let's go with something really really simple.
-
-All journeys now fall under one of three distance categories:
-
-* Local journeys are those which have at least one zone in common between their
-  origin and destination. These are simple: you won't be charged for any extra
-  zones. (Note that it's entirely possible for you to end up being charged for
-  other zones than the one that was actually in common. Only very weird edge
-  cases will have this be significantly different.)
-* Adjacent journeys are those which, while they don't have any zones in common,
-  have some pair of zones which is in the adjacency table. So, for instance, a
-  journey may begin in zone 1|4 and end in zone 2|5; if there exists a location
-  in zone 1|5, then these locations are deemed to be adjacent. You will be
-  charged for your two end points, plus the overlap pair; this will ensure that
-  you are definitely charged for at least two zones, but in many situations, no
-  more than two.
-* Cross-zone journeys are those which are neither local nor adjacent. For these
-  trips, an additional zone must be charged for. This is done by adding a zone
-  to the touch map which carries the magical property of vanishing as long as
-  at least three real zones are being charged for.
+actually curing anything. So instead, we simply categorize trips by distance,
+as detailed in the main body.
 
 This system ensures that any "wonk" in the fares is in the traveller's favour.
 For instance, it is not possible to ever be charged for four or more zones in a
@@ -587,16 +462,6 @@ from one zone into the next? Charged for two. Going a long way? Charged for
 three zones, never more. As an added bonus, we don't have to stress too much
 about the exact fare charged for a presumed touch-off, as it can never exceed
 the three-zone charge for a cross-zone journey.
-
-For the purposes of duration tickets, the mythic zone can be satisfied by any
-zone; if you travel from zone 1|4 to 7|8, and you have a 1|2|7 ticket, this
-will be deemed acceptable. Technically, a zone 1|4|7 ticket should NOT suffice,
-but in the interests of simplicity and consistency, it will be permitted.
-However, a zone 1|7 ticket will not be sufficient, and you would be charged for
-one additional zone of automated ticket.
-
-Rejected alternate sub-proposals
-================================
 
 Ticket durations and touches-off
 --------------------------------
