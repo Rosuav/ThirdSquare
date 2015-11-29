@@ -263,9 +263,6 @@ for passengers, as many railway stations as possible should be equipped with
 barriers, as anyone who physically jumps over barriers is generally going to be
 aware that s/he is fare evading; where this is impractical, signage has to
 suffice, and as we all know, signage is seldom noticed.
-(Parenthesis: Train journeys can easily cross many zones, especially since
-changing services at Flinner doesn't involve any touches. This makes a problem
-for point-to-point fare calculation. See below.)
 
 This requires that a vehicle know in advance what its next trip will be, or
 else to reject touches-on until it knows that.
