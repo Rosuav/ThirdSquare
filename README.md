@@ -78,8 +78,8 @@ will register a "presumed touch off". This is done as the "longest logical"
 journey from the touch-on point - the longest possible normal trip from there.
 Touches on platforms (railway stations) use a separate handler; see below.
 
-Why not Myki?
-=============
+Motivation, or: Why not Myki?
+=============================
 
 We already have a system; why do we need another? What are the benefits of
 ThirdSquare over Myki?
