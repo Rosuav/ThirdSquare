@@ -370,7 +370,7 @@ The set of all zones valid at a given location is that location's zone map. The
 set of all zones for which a period ticket is valid is similar; so long as any
 intersection exists between the ticket's zones and the location's zone map, it
 is valid. A ticket's exact set of zones is ephemeral, and may change any time
-a new touch is added; all that truly matters is the *count* of zones.
+a new touch is added; all that truly matters is the _count_ of zones.
 
 Zones must be defined in a totally ordered manner. Identifying them with simple
 numbers or alphabetizable strings is sufficient.
