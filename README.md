@@ -437,6 +437,18 @@ Within each state, premium touches (those which trigger direct money charges)
 can easily be summed and credited to the respective operators, and zone-based
 touches can be grouped by vehicle operator and thus divided proportionally.
 
+Non-travel use of cards
+=======================
+
+An almost trivial extension to the protocol would permit arbitrary dollar
+amounts to be charged to people's accounts. This would allow "touch here to pay
+for your coffee", without having to preregister the value of the coffee. This
+would be done with a "vehicle" representing the coffee shop (and there could be
+multiple vehicles in a chain of shops), with its own encryption keypair and IP
+address. A descriptive text field could be added for customer convenience. As
+the premium touches would be disbursed directly to the operator, this would be
+a fairly direct way to transfer funds.
+
 Rejected alternate sub-proposals
 ================================
 
