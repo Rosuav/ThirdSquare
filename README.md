@@ -78,6 +78,50 @@ will register a "presumed touch off". This is done as the "longest logical"
 journey from the touch-on point - the longest possible normal trip from there.
 Touches on platforms (railway stations) use a separate handler; see below.
 
+Why not Myki?
+=============
+
+We already have a system; why do we need another? What are the benefits of
+ThirdSquare over Myki?
+
+First and foremost, Myki is a stored-money card, where ThirdSquare keeps all
+financial information on the central server. This makes Myki a far simpler and
+cheaper system (a validation is handled entirely by the hardware on the vehicle
+or station, without any need for a network), but makes it abusable; there is no
+way to prevent someone from putting money on a card, cloning it, using the
+clone, and then recloning from the original, to maintain infinite money. Short
+of having all transactions sent to the server (which would result in something
+effectively identical to this proposal), this cannot be prevented.
+
+Other benefits of server-side finance include:
+* Simple and easy fleet handling - just have multiple cards on one account
+* Hassle-free lost card replacement - add another card to the account and nuke
+  the lost one.
+* Instant recharge visibility regardless of the source of the money. With Myki,
+  recharging at a station or on a bus is instant, but recharging over the phone
+  or on the web site incurs a 24-hour delay.
+* Easy auditing. Since usage history is not stored on the card, it's not
+  limited in space; it'd be easy to pull up the exact touch and charge history,
+  and demonstrate exactly what's been charged for and why.
+
+A second benefit of this system is that it allows far more granular zoning than
+we currently have, while still allowing the simple "just touch on and touch off
+for the lowest fare" usage pattern. Under the Smart Passengers 2050 Plan, zones
+would be aligned with city planning, with roughly twenty zones across Melbourne
+rather than the current two. Even clocking back to 2007's three-zone plan, the
+system is simple and geographic - the zones are perfectly concentric, so travel
+that touches zones 1 and 3 is assumed to also require zone 2. Moving to twenty
+zones would either require a far more flexible automated ticket system (such as
+is described here), or punting the complexity back to the customer, forcing the
+purchase of specific-zone tickets.
+
+Finally, the entire openness of the system allows replacements, upgrades, etc
+to be performed independently on any component. The specification is entirely
+about the network and communication protocols, allowing commodity hardware to
+perform all relevant roles. Anyone can join the system simply by submitting a
+public key and an IP address, other than trust issues (outside this document's
+scope); allowing "touch your card for coffee" would be almost trivially easy.
+
 Terminology
 ===========
 
