@@ -390,6 +390,11 @@ perfectly reasonable to operate a two-platform island station off a single IP,
 and equally reasonable to operate Spencer Street Station off several separate
 nodes, just as long as each node has a dedicated IP address and keypair.
 
+For the purposes of revenue distribution, it's easiest if a vehicle's IP
+changes any time it transfers to a new operator. Otherwise, careful handling
+of the year's revenue will be needed - counting the touches up to this date
+for this operator, and those after that date for that operator.
+
 Identifiers: Locations
 ======================
 
