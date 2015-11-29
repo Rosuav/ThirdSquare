@@ -429,6 +429,14 @@ a new touch is added; all that truly matters is the _count_ of zones.
 Zones must be defined in a totally ordered manner. Identifying them with simple
 numbers or alphabetizable strings is sufficient.
 
+Distribution of revenue
+=======================
+
+All monies debited against an account are correspondingly credited to a state.
+Within each state, premium touches (those which trigger direct money charges)
+can easily be summed and credited to the respective operators, and zone-based
+touches can be grouped by vehicle operator and thus divided proportionally.
+
 Rejected alternate sub-proposals
 ================================
 
