@@ -125,6 +125,12 @@ scope); allowing "touch your card for coffee" would be almost trivially easy.
 Terminology
 ===========
 
+The fundamental action in the system is a validation or "touch". Every trip
+consists of a "touch on", as a passenger boards a vehicle (or enters the paid
+area of a railway station), and a "touch off", as the same passenger departs.
+If the touch off is not performed explicitly, a "presumed touch" is performed
+by the system - see below for details.
+
 A "normal trip" is one which a traveller with broad knowledge of the system
 would use to get from one origin to one destination. Fare calculation etc is
 all predicated on normal trips; if someone boards a vehicle, rides it to its
